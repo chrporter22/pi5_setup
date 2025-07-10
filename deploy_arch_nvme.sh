@@ -24,15 +24,15 @@
 # In the same boot partition:
 #  - Create a file named `wpa_supplicant.conf` with the following contents:
 
-#   (Replace "YourWiFiSSID" and "YourWiFiPassword" appropriately)
+#   (Replace "WiFiSSID" and "WiFiPassword" appropriately)
 
 country=US
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
 
 network={
-    ssid="YourWiFiSSID"
-    psk="YourWiFiPassword"
+    ssid="WiFiSSID"
+    psk="WiFiPassword"
     key_mgmt=WPA-PSK
 }
 
@@ -54,14 +54,20 @@ network={
 
 set -e
 
+# === Load secrets from .env if available ===
+if [[ -f ".env" ]]; then
+  source .env
+else
+  echo "Missing .env file. Please create one with your Wi-Fi and user credentials."
+  exit 1
+fi
+
 # === CONFIG ===
 DOTFILES_REPO="https://github.com/chrporter22/dotfiles.git"
 NVME_DEV="/dev/nvme0n1"
 MOUNTPOINT="/mnt/arch"
 HOSTNAME="rpi-arch"
 USERNAME="pi"
-WIFI_SSID="YourWiFiSSID"
-WIFI_PASS="YourWiFiPassword"
 
 # === 1. Install essentials on Pi OS Lite ===
 sudo apt update
@@ -134,7 +140,7 @@ pacman -Syu --noconfirm linux-rpi linux-rpi-headers git stow sudo networkmanager
 
 # Create user and sudo config
 useradd -m -G wheel -s /bin/bash $USERNAME
-echo "$USERNAME:raspberry" | chpasswd
+echo "$USERNAME:$PI_PASSWORD" | chpasswd
 echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 
 # Wi-Fi setup

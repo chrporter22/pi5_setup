@@ -23,15 +23,15 @@
 # In the same boot partition:
 #  - Create a file named `wpa_supplicant.conf` with the following contents:
 
-#   (Replace "YourWiFiSSID" and "YourWiFiPassword" appropriately)
+#   (Replace "WiFiSSID" and "WiFiPassword" appropriately)
 
 country=US
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
 
 network={
-    ssid="YourWiFiSSID"
-    psk="YourWiFiPassword"
+    ssid="WiFiSSID"
+    psk="WiFiPassword"
     key_mgmt=WPA-PSK
 }
 
@@ -50,7 +50,16 @@ network={
 # Clone your setup repo:
 # git clone https://github.com/chrporter22/pi5_setup.git
 # cd pi5_setup
+
 set -e
+
+# === Load secrets from .env if available ===
+if [[ -f ".env" ]]; then
+  source .env
+else
+  echo "Missing .env file. Please create one with your Wi-Fi and user credentials."
+  exit 1
+fi
 
 # === CONFIG ===
 SD_DEV="/dev/mmcblk0"
@@ -62,8 +71,6 @@ MOUNTPOINT="/mnt/arch"
 HOSTNAME="rpi-arch"
 USERNAME="pi"
 DOTFILES_REPO="https://github.com/chrporter22/dotfiles.git"
-WIFI_SSID="YourWiFiSSID"
-WIFI_PASS="YourWiFiPassword"
 
 echo "WARNING: This will wipe the current OS on the SD card ($SD_DEV) and install Arch Linux."
 read -p "Proceed with SD install? (y/N): " CONFIRM
@@ -122,7 +129,7 @@ pacman-key --init && pacman-key --populate archlinuxarm
 pacman -Syu --noconfirm linux-rpi linux-rpi-headers git stow sudo networkmanager iwd base-devel
 
 useradd -m -G wheel -s /bin/bash $USERNAME
-echo "$USERNAME:raspberry" | chpasswd
+echo "$USERNAME:$PI_PASSWORD" | chpasswd
 echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 systemctl enable NetworkManager
 
