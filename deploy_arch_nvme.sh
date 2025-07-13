@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ##############################################
-# 0. FIRST BOOT SETUP INSTRUCTIONS (SD CARD)
+# 0. FIRST BOOT SETUP INSTRUCTIONS (NVME SSD)
 ##############################################
 
 # -- STEP 1: Flash SD Card with Raspberry Pi Imager
