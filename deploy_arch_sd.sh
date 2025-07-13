@@ -3,23 +3,21 @@
 # 0. FIRST BOOT SETUP INSTRUCTIONS (SD CARD)
 ##############################################
 
-# -- STEP 1: Download Raspberry Pi OS Lite Image --
-# From your Windows machine, download the latest Raspberry Pi OS Lite (.img.xz) from:
-# https://www.raspberrypi.com/software/operating-systems/
-
-# -- STEP 2: Flash SD Card with Rufus --
+# -- STEP 1: Flash SD Card with Raspberry Pi Imager
+# Format SD cards over 32 GB to FAT32 format
+# Use lates 64 bit Raspberry Pi OS Lite (.img.xz)
 # Insert the 64GB microSD card
 # Open Rufus (https://rufus.ie)
 #  - Select the Raspberry Pi OS image
 #  - Use 'DD' image mode when prompted
 #  - Select device (your SD card) and flash
 
-# -- STEP 3: Enable SSH (headless access) --
+# -- STEP 2: Enable SSH (headless access) --
 # After flashing completes:
 #  - Open the boot partition of the SD card in File Explorer
 #  - Add an empty file named `ssh` (no file extension) to root of the partition
 
-# -- STEP 4: Configure Wi-Fi (headless setup) --
+# -- STEP 3: Configure Wi-Fi (headless setup) --
 # In the same boot partition:
 #  - Create a file named `wpa_supplicant.conf` with the following contents:
 
@@ -37,16 +35,16 @@ network={
 
 # Save that file to the SD card root.
 
-# -- STEP 5: Insert SD Card and Boot Pi --
+# -- STEP 4: Insert SD Card and Boot Pi --
 # - Insert the card into your Raspberry Pi 5
 # - Power it on
 # - It should auto-connect to Wi-Fi and allow SSH logins to `pi@raspberrypi.local`
 
-# -- STEP 6: SSH into the Pi from your laptop --
+# -- STEP 5: SSH into the Pi from your laptop --
 # Run in terminal: ssh pi@raspberrypi.local
 # Default password is: raspberry
 
-# -- STEP 7: Run Full Setup Script --
+# -- STEP 6: Run Full Setup Script --
 # Clone your setup repo:
 # git clone https://github.com/chrporter22/pi5_setup.git
 # cd pi5_setup
