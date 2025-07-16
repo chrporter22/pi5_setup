@@ -1,15 +1,13 @@
 #!/bin/bash
 ##############################################
-# 0. FIRST BOOT SETUP INSTRUCTIONS (SD CARD)
+# FIRST BOOT SETUP INSTRUCTIONS (SD CARD)
 ##############################################
 
 # -- STEP 1: Flash SD Card with Raspberry Pi Imager
 # Format SD cards over 32 GB to FAT32 format
-# Use lates 64 bit Raspberry Pi OS Lite (.img.xz)
-# Insert the 64GB microSD card
-# Open Rufus (https://rufus.ie)
+# Use latest 64 bit Raspberry Pi OS Lite (.img.xz)
+# Insert the microSD card
 #  - Select the Raspberry Pi OS image
-#  - Use 'DD' image mode when prompted
 #  - Select device (your SD card) and flash
 
 # -- STEP 2: Enable SSH (headless access) --
@@ -17,37 +15,26 @@
 #  - Open the boot partition of the SD card in File Explorer
 #  - Add an empty file named `ssh` (no file extension) to root of the partition
 
-# -- STEP 3: Configure Wi-Fi (headless setup) --
-# In the same boot partition:
-#  - Create a file named `wpa_supplicant.conf` with the following contents:
-
-#   (Replace "WiFiSSID" and "WiFiPassword" appropriately)
-
-country=US
-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-update_config=1
-
-network={
-    ssid="WiFiSSID"
-    psk="WiFiPassword"
-    key_mgmt=WPA-PSK
-}
-
-# Save that file to the SD card root.
-
-# -- STEP 4: Insert SD Card and Boot Pi --
+# -- STEP 3: Insert SD Card and Boot Pi --
 # - Insert the card into your Raspberry Pi 5
-# - Power it on
-# - It should auto-connect to Wi-Fi and allow SSH logins to `pi@raspberrypi.local`
+# - Connect ethernet cable to router & power on
+# - It should auto-connect via Ethernet and allow SSH logins to `pi@raspberrypi.local`
+
+# -- STEP 4: Connection via Ethernet (headless setup) --
+#  - Access Router Connected Device Page and locate Raspberry Pi5 IP address or grep for
+#  IPv4
 
 # -- STEP 5: SSH into the Pi from your laptop --
 # Run in terminal: ssh pi@raspberrypi.local
-# Default password is: raspberry
+# Default password is: raspberry (unless changed under customization settings during os
+# flash)
 
 # -- STEP 6: Run Full Setup Script --
-# Clone your setup repo:
+# Create an .env file for arch password & clone your setup repo:
 # git clone https://github.com/chrporter22/pi5_setup.git
 # cd pi5_setup
+# Add WIFI, WIFI Password, and user password and env variables for reference
+# Run sh deploy_arch_sd.sh script
 
 set -e
 
@@ -64,10 +51,10 @@ SD_DEV="/dev/mmcblk0"
 BOOT_PART="${SD_DEV}p1"
 SWAP_PART="${SD_DEV}p2"
 ROOT_PART="${SD_DEV}p3"
-MOUNTPOINT="/mnt/arch"
+MOUNTPOINT="/mnt"
 
 HOSTNAME="rpi-arch"
-USERNAME="pi"
+USERNAME="pi5_sd"
 DOTFILES_REPO="https://github.com/chrporter22/dotfiles.git"
 
 echo "WARNING: This will wipe the current OS on the SD card ($SD_DEV) and install Arch Linux."
@@ -119,7 +106,7 @@ cp /etc/resolv.conf $MOUNTPOINT/etc/
 
 # === 5. Setup inside Arch chroot ===
 arch-chroot $MOUNTPOINT /bin/bash <<EOF
-ln -sf /usr/share/zoneinfo/UTC /etc/localtime
+ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 hwclock --systohc
 echo "$HOSTNAME" > /etc/hostname
 
@@ -131,8 +118,10 @@ echo "$USERNAME:$PI_PASSWORD" | chpasswd
 echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 systemctl enable NetworkManager
 
-# Enable swap
+# Enable fstab & swap
+echo "$BOOT_PART /boot vfat defaults 0 1" >> /etc/fstab
 echo "$SWAP_PART none swap sw 0 0" >> /etc/fstab
+echo "$ROOT_PART / ext4 defaults 0 2" >> /etc/fstab
 swapon $SWAP_PART
 
 # Wi-Fi config (NetworkManager)

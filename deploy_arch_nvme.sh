@@ -1,16 +1,12 @@
 #!/bin/bash
-
 ##############################################
-# 0. FIRST BOOT SETUP INSTRUCTIONS (NVME SSD)
+# FIRST BOOT SETUP INSTRUCTIONS (NVME SSD)
 ##############################################
 
 # -- STEP 1: Flash SD Card with Raspberry Pi Imager
 # Format SD cards over 32 GB to FAT32 format
-# Use lates 64 bit Raspberry Pi OS Lite (.img.xz)
-# Insert the 64GB microSD card
-# Open Rufus (https://rufus.ie)
-#  - Select the Raspberry Pi OS image
-#  - Use 'DD' image mode when prompted
+# Use latest 64 bit Raspberry Pi OS Lite (.img.xz)
+# Insert the microSD card
 #  - Select device (your SD card) and flash
 
 # -- STEP 2: Enable SSH (headless access) --
@@ -43,14 +39,21 @@ network={
 
 # -- STEP 5: SSH into the Pi from your laptop --
 # Run in terminal: ssh pi@raspberrypi.local
-# Default password is: raspberry
+# Default password is: raspberry (unless changed with customization setting during os
+# flash)
 
 # -- STEP 6: Run Full Setup Script --
+# Create an .env file for arch password & clone your setup repo:
+# git clone https://github.com/chrporter22/pi5_setup.git
+# cd pi5_setup
+# With 'vi' create an '.env' file with WIFI, WIFI Password, and user password variables for reference
+# Run sh deploy_arch_sd.sh script
 # Clone your setup repo:
 # git clone https://github.com/chrporter22/pi5_setup.git
 # cd pi5_setup
 
 set -e
+
 
 # === Load secrets from .env if available ===
 if [[ -f ".env" ]]; then
@@ -60,18 +63,22 @@ else
   exit 1
 fi
 
+
 # === CONFIG ===
 DOTFILES_REPO="https://github.com/chrporter22/dotfiles.git"
 NVME_DEV="/dev/nvme0n1"
-MOUNTPOINT="/mnt/arch"
+MOUNTPOINT="/mnt"
 HOSTNAME="rpi-arch"
-USERNAME="pi"
+USERNAME="pi5_nvme"
+
 
 # === 1. Install essentials on Pi OS Lite ===
 sudo apt update
 
+
 # List of required packages
 PACKAGES=(git curl wget unzip bsdtar arch-install-scripts stow parted)
+
 
 # Check and install missing packages
 for pkg in "${PACKAGES[@]}"; do
@@ -96,7 +103,7 @@ sgdisk -n 2:0:+16G -t 2:8200 -c 2:"SWAP" $NVME_DEV
 # Partition 3: Use remaining space for Root filesystem
 sgdisk -n 3:0:0 -t 3:8300 -c 3:"ROOT" $NVME_DEV
 
-# Format partitions
+# === 2.1 Format partitions ===
 mkfs.vfat -F32 "${NVME_DEV}p1"
 mkswap "${NVME_DEV}p2"
 mkfs.ext4 "${NVME_DEV}p3"
@@ -115,7 +122,7 @@ echo "Mounted devices under $MOUNTPOINT:"
 mount | grep "$MOUNTPOINT" || { echo "Error: Required partitions not mounted correctly. Aborting."; exit 1; }
 echo "Mount validation passed."
 
-# Proceed with Arch bootstrap
+# === 3.2 Proceed with Arch bootstrap ===
 curl -LO http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-aarch64-latest.tar.gz
 bsdtar -xpf ArchLinuxARM-rpi-aarch64-latest.tar.gz -C $MOUNTPOINT
 
@@ -129,19 +136,25 @@ cp /etc/resolv.conf $MOUNTPOINT/etc/
 
 # === 5. chroot Setup ===
 arch-chroot $MOUNTPOINT /bin/bash <<EOF
-ln -sf /usr/share/zoneinfo/UTC /etc/localtime
+ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 hwclock --systohc
 echo "$HOSTNAME" > /etc/hostname
 
 pacman-key --init && pacman-key --populate archlinuxarm
 pacman -Syu --noconfirm linux-rpi linux-rpi-headers git stow sudo networkmanager iwd base-devel
 
-# Create user and sudo config
 useradd -m -G wheel -s /bin/bash $USERNAME
 echo "$USERNAME:$PI_PASSWORD" | chpasswd
 echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
+systemctl enable NetworkManager
 
-# Wi-Fi setup
+# Enable fstab & swap
+echo "$BOOT_PART /boot vfat defaults 0 1" >> /etc/fstab
+echo "$SWAP_PART none swap sw 0 0" >> /etc/fstab
+echo "$ROOT_PART / ext4 defaults 0 2" >> /etc/fstab
+swapon $SWAP_PART
+
+# Wi-Fi config (NetworkManager)
 cat > /etc/NetworkManager/system-connections/wifi.nmconnection <<WIFI
 [connection]
 id=wifi
@@ -163,13 +176,8 @@ method=auto
 WIFI
 
 chmod 600 /etc/NetworkManager/system-connections/wifi.nmconnection
-systemctl enable NetworkManager
 
-# Swap
-echo "/dev/nvme0n1p2 none swap sw 0 0" >> /etc/fstab
-swapon /dev/nvme0n1p2
-
-# Dotfiles and custom installer
+# Dotfiles setup
 cd /home/$USERNAME
 git clone $DOTFILES_REPO dotfiles
 cd dotfiles
@@ -210,6 +218,7 @@ ensure_nvme_boot_enabled() {
   fi
 }
 
+
 # === 6.1 Ensure NVMe Boot Priority ===
 ensure_nvme_boot_enabled
 
@@ -217,7 +226,6 @@ ensure_nvme_boot_enabled
 # === 7. Final Bootloader Sync ===
 cp -r $MOUNTPOINT/boot/* /boot/
 umount -R $MOUNTPOINT
-
 echo "Pi5 bootstrapped with Arch, NVMe, swap, Wi-Fi, and your dev stack!"
 
 
@@ -230,6 +238,5 @@ prompt_reboot() {
     fi
 }
 
-
-# Call function
+# === 8.1 Call function ===
 prompt_reboot
