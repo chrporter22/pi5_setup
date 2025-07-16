@@ -48,9 +48,7 @@ network={
 # cd pi5_setup
 # With 'vi' create an '.env' file with WIFI, WIFI Password, and user password variables for reference
 # Run sh deploy_arch_sd.sh script
-# Clone your setup repo:
-# git clone https://github.com/chrporter22/pi5_setup.git
-# cd pi5_setup
+
 
 set -e
 
