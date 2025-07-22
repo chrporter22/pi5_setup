@@ -136,7 +136,15 @@ cp /etc/resolv.conf $MOUNTPOINT/etc/
 arch-chroot $MOUNTPOINT /bin/bash <<EOF
 ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 hwclock --systohc
+
 echo "$HOSTNAME" > /etc/hostname
+
+# Hosts file
+cat > /etc/hosts <<HOSTS
+127.0.0.1       localhost
+::1             localhost
+127.0.1.1       ${HOSTNAME}.localdomain ${HOSTNAME}
+HOSTS
 
 pacman-key --init && pacman-key --populate archlinuxarm
 pacman -Syu --noconfirm linux-rpi linux-rpi-headers git stow sudo networkmanager iwd base-devel
