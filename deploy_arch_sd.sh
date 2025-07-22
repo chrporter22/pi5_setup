@@ -81,7 +81,13 @@ sgdisk -n 2:0:+4G    -t 2:8200 -c 2:"SWAP" $SD_DEV
 sgdisk -n 3:0:0      -t 3:8300 -c 3:"ROOT" $SD_DEV
 
 mkfs.vfat -F32 $BOOT_PART
-mkswap $SWAP_PART
+
+if mount | grep -q "/dev/mmcblk0p2"; then
+  echo "Unmounting swap partition before formatting..."
+  sudo umount $SWAP_PART
+fi
+
+sudo mkswap $SWAP_PART
 mkfs.ext4 $ROOT_PART
 
 # === 3. Mount and Bootstrap Arch ===
