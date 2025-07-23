@@ -48,7 +48,7 @@ else
 fi
 
 # === CONFIG ===
-SD_DEV="/dev/mmcblk0"
+SD_DEV="/dev/mmcblk0p2"
 BOOT_PART="${SD_DEV}p3"
 SWAP_PART="${SD_DEV}p4"
 ROOT_PART="${SD_DEV}p5"
