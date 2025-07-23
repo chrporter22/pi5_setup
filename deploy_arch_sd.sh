@@ -80,9 +80,9 @@ echo "Partitioning SD card for Arch Linux..."
 sgdisk -Z $SD_DEV
 
 # Create new Arch-specific partitions
-sgdisk -n 4:0:+256M -t 4:0700 -c 3:"ARCH_BOOT" $SD_DEV   # Arch Boot
-sgdisk -n 5:0:+4G    -t 5:8200 -c 4:"ARCH_SWAP" $SD_DEV   # Swap
-sgdisk -n 6:0:0      -t 6:8300 -c 5:"ARCH_ROOT" $SD_DEV   # Root
+sgdisk -n 4:0:+256M -t 4:0700 -c 3:"BOOT_PART" $SD_DEV   # Arch Boot
+sgdisk -n 5:0:+4G    -t 5:8200 -c 4:"SWAP_PART" $SD_DEV   # Swap
+sgdisk -n 6:0:0      -t 6:8300 -c 5:"ROOT_PART" $SD_DEV   # Root
 
 # Format boot partition
 mkfs.vfat -F32 ${SD_DEV}p3
