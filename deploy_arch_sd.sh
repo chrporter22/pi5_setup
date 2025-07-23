@@ -136,6 +136,7 @@ useradd -m -G wheel -s /bin/bash $USERNAME
 echo "$USERNAME:$PI_PASSWORD" | chpasswd
 echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 systemctl enable NetworkManager
+systemctl enable sshd
 
 # Enable fstab & swap
 echo "$BOOT_PART /boot vfat defaults 0 1" >> /etc/fstab
