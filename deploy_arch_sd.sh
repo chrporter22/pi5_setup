@@ -48,7 +48,7 @@ else
 fi
 
 # === CONFIG ===
-SD_DEV="/dev/sda1"
+SD_DEV="/dev/sda"
 BOOT_PART="${SD_DEV}p1"
 SWAP_PART="${SD_DEV}p2"
 ROOT_PART="${SD_DEV}p3"
@@ -79,10 +79,11 @@ echo "Partitioning SD card for Arch Linux..."
 # Wipe all previous partition data (optional, careful if live!)
 sgdisk -Z $SD_DEV
 
-# Create new Arch-specific partitions
-sgdisk -n 4:0:+256M -t 4:0700 -c 1:"boot" $SD_DEV   # Arch Boot
-sgdisk -n 5:0:+4G    -t 5:8200 -c 2:"swap" $SD_DEV   # Swap
-sgdisk -n 6:0:0      -t 6:8300 -c 3:"root" $SD_DEV   # Root
+# Create partitions
+sgdisk -n 1:0:+256M -t 1:0700 -c 1:"boot" $SD_DEV
+sgdisk -n 2:0:+4G -t 2:8200 -c 2:"swap" $SD_DEV
+sgdisk -n 3:0:0 -t 3:8300 -c 3:"root" $SD_DEV
+
 
 # Format boot partition
 mkfs.vfat -F32 ${SD_DEV}p1
