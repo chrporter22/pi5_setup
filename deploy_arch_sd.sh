@@ -30,11 +30,12 @@
 # flash)
 
 # -- STEP 6: Run Full Setup Script --
-# Create an .env file for arch password & clone your setup repo:
+# Install git and vim
 # git clone https://github.com/chrporter22/pi5_setup.git
 # cd pi5_setup
-# Add WIFI, WIFI Password, and user password and env variables for reference
-# Run sh deploy_arch_sd.sh script
+# Create an .env file for repo setup:
+# Add SSID, WIFI password, and user password 
+# Run bash deploy_arch_sd.sh script
 
 set -e
 
@@ -48,9 +49,9 @@ fi
 
 # === CONFIG ===
 SD_DEV="/dev/mmcblk0"
-BOOT_PART="${SD_DEV}p1"
-SWAP_PART="${SD_DEV}p2"
-ROOT_PART="${SD_DEV}p3"
+BOOT_PART="${SD_DEV}p3"
+SWAP_PART="${SD_DEV}p4"
+ROOT_PART="${SD_DEV}p5"
 MOUNTPOINT="/mnt"
 
 HOSTNAME="rpi-arch"
@@ -72,23 +73,27 @@ for pkg in "${PACKAGES[@]}"; do
         sudo apt install -y "$pkg"
     fi
 done
+ # === 2. Partition SD: Arch BOOT + SWAP (4GB) + ROOT ===
+echo "Partitioning SD card for Arch Linux..."
 
-# === 2. Partition SD: BOOT + SWAP (4GB) + ROOT ===
-echo "Partitioning SD card..."
+# Wipe all previous partition data (optional, careful if live!)
 sgdisk -Z $SD_DEV
-sgdisk -n 1:0:+256M -t 1:0700 -c 1:"BOOT" $SD_DEV
-sgdisk -n 2:0:+4G    -t 2:8200 -c 2:"SWAP" $SD_DEV
-sgdisk -n 3:0:0      -t 3:8300 -c 3:"ROOT" $SD_DEV
 
-mkfs.vfat -F32 $BOOT_PART
+# Create new Arch-specific partitions
+sgdisk -n 4:0:+256M -t 4:0700 -c 3:"ARCH_BOOT" $SD_DEV   # Arch Boot
+sgdisk -n 5:0:+4G    -t 5:8200 -c 4:"ARCH_SWAP" $SD_DEV   # Swap
+sgdisk -n 6:0:0      -t 6:8300 -c 5:"ARCH_ROOT" $SD_DEV   # Root
 
-if mount | grep -q "/dev/mmcblk0p2"; then
-  echo "Unmounting swap partition before formatting..."
-  sudo umount $SWAP_PART
+# Format boot partition
+mkfs.vfat -F32 ${SD_DEV}p3
+
+# Format swap (if not in use)
+if mount | grep -q "${SD_DEV}p4"; then
+  echo "Unmounting active swap partition before formatting..."
+  sudo swapoff ${SD_DEV}p4 || true
+  sudo umount ${SD_DEV}p4 || true
 fi
-
-sudo mkswap $SWAP_PART
-mkfs.ext4 $ROOT_PART
+sudo mkswap ${SD_DEV}p4
 
 # === 3. Mount and Bootstrap Arch ===
 mkdir -p $MOUNTPOINT
