@@ -48,10 +48,10 @@ else
 fi
 
 # === CONFIG ===
-SD_DEV="/dev/mmcblk0"
-BOOT_PART="${SD_DEV}p3"
-SWAP_PART="${SD_DEV}p4"
-ROOT_PART="${SD_DEV}p5"
+SD_DEV="/dev/sda1"
+BOOT_PART="${SD_DEV}p1"
+SWAP_PART="${SD_DEV}p2"
+ROOT_PART="${SD_DEV}p3"
 MOUNTPOINT="/mnt"
 
 HOSTNAME="rpi-arch"
@@ -80,20 +80,20 @@ echo "Partitioning SD card for Arch Linux..."
 sgdisk -Z $SD_DEV
 
 # Create new Arch-specific partitions
-sgdisk -n 4:0:+256M -t 4:0700 -c 3:"boot" $SD_DEV   # Arch Boot
-sgdisk -n 5:0:+4G    -t 5:8200 -c 4:"swap" $SD_DEV   # Swap
-sgdisk -n 6:0:0      -t 6:8300 -c 5:"root" $SD_DEV   # Root
+sgdisk -n 4:0:+256M -t 4:0700 -c 1:"boot" $SD_DEV   # Arch Boot
+sgdisk -n 5:0:+4G    -t 5:8200 -c 2:"swap" $SD_DEV   # Swap
+sgdisk -n 6:0:0      -t 6:8300 -c 3:"root" $SD_DEV   # Root
 
 # Format boot partition
-mkfs.vfat -F32 ${SD_DEV}p3
+mkfs.vfat -F32 ${SD_DEV}p1
 
 # Format swap (if not in use)
-if mount | grep -q "${SD_DEV}p4"; then
+if mount | grep -q "${SD_DEV}p2"; then
   echo "Unmounting active swap partition before formatting..."
-  sudo swapoff ${SD_DEV}p4 || true
-  sudo umount ${SD_DEV}p4 || true
+  sudo swapoff ${SD_DEV}p2 || true
+  sudo umount ${SD_DEV}p2 || true
 fi
-sudo mkswap ${SD_DEV}p4
+sudo mkswap ${SD_DEV}p2
 
 # === 3. Mount and Bootstrap Arch ===
 mkdir -p $MOUNTPOINT
