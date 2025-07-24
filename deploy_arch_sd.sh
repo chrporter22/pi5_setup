@@ -36,7 +36,7 @@
 # git clone https://github.com/chrporter22/pi5_setup.git
 # cd pi5_setup
 # Create an .env file for repo setup:
-# Add WIFI_SSID, WIFI_PASS, and PI_PASSWORD 
+# Add WIFI_SSID, WIFI_PASS, WIFI_Country, and PI_PASSWORD 
 # Run bash deploy_arch_sd.sh script
 
 set -e
