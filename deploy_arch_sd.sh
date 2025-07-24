@@ -141,6 +141,12 @@ echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 systemctl enable NetworkManager
 systemctl enable sshd
 
+cat > /etc/iwd/main.conf <<IWD_CONF
+[General]
+EnableNetworkConfiguration=true
+RegulatoryDomain=US
+IWD_CONF
+
 # Enable fstab & swap
 echo "$BOOT_PART /boot vfat defaults 0 1" >> /etc/fstab
 echo "$SWAP_PART none swap sw 0 0" >> /etc/fstab
