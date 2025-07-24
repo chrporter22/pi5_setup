@@ -141,11 +141,28 @@ echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 systemctl enable NetworkManager
 systemctl enable sshd
 
-cat > /etc/iwd/main.conf <<IWD_CONF
-[General]
-EnableNetworkConfiguration=true
-RegulatoryDomain=US
-IWD_CONF
+# Set Wi-Fi country for regulatory domain (no extra packages needed)
+echo "REGDOMAIN=$WIFI_COUNTRY" > /etc/default/regulatory-domain
+
+mkdir -p /etc/systemd/system/wireless-regdom.service.d
+cat > /etc/systemd/system/wireless-regdom.service.d/env.conf <<ENV
+[Service]
+Environment=REGDOMAIN=$WIFI_COUNTRY
+ENV
+
+cat > /etc/systemd/system/wireless-regdom.service <<SERVICE
+[Unit]
+Description=Set regulatory domain for wireless
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c 'iw reg set \$REGDOMAIN'
+
+[Install]
+WantedBy=multi-user.target
+SERVICE
+
+systemctl enable wireless-regdom.service
 
 # Enable fstab & swap
 echo "$BOOT_PART /boot vfat defaults 0 1" >> /etc/fstab
