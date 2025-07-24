@@ -6,7 +6,6 @@
 # -- STEP 1: Flash SD Card with Raspberry Pi Imager
 # Format SD cards over 32 GB to FAT32 format
 # Use latest 64 bit Raspberry Pi OS Lite (.img.xz)
-# Insert the microSD card
 #  - Select the Raspberry Pi OS image
 #  - Select device (your SD card) and flash
 
@@ -25,16 +24,19 @@
 #  IPv4
 
 # -- STEP 5: SSH into the Pi from your laptop --
-# Run in terminal: ssh pi@raspberrypi.local
+# Run in terminal: ssh user@raspberrypi.local
 # Default password is: raspberry (unless changed under customization settings during os
 # flash)
 
 # -- STEP 6: Run Full Setup Script --
+# Format target Micro SD with Raspberry Pi Imager
+# Insert USB with SD card ready to format
+# Check hardware with 'lsblk' to review available
 # Install git and vim
 # git clone https://github.com/chrporter22/pi5_setup.git
 # cd pi5_setup
 # Create an .env file for repo setup:
-# Add SSID, WIFI password, and user password 
+# Add WIFI_SSID, WIFI_PASS, and PI_PASSWORD 
 # Run bash deploy_arch_sd.sh script
 
 set -e
