@@ -133,7 +133,7 @@ cat > /etc/hosts <<HOSTS
 HOSTS
 
 pacman-key --init && pacman-key --populate archlinuxarm
-pacman -Syu --noconfirm linux-rpi linux-rpi-headers git stow sudo networkmanager iwd base-devel
+pacman -Syu --noconfirm dosfstools linux-rpi linux-rpi-headers git stow sudo networkmanager iwd base-devel
 
 useradd -m -G wheel -s /bin/bash $USERNAME
 echo "$USERNAME:$PI_PASSWORD" | chpasswd
