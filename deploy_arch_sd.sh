@@ -118,11 +118,11 @@ bsdtar -xpf ArchLinuxARM-rpi-aarch64-latest.tar.gz -C $MOUNTPOINT
 rm ArchLinuxARM-rpi-aarch64-latest.tar.gz
 
 # === 4. Chroot prep ===
-mount --bind /dev  $MOUNTPOINT/dev
-mount --bind /proc $MOUNTPOINT/proc
-mount --bind /sys  $MOUNTPOINT/sys
-cp --dereference /etc/resolv.conf $MOUNTPOINT/etc/
-
+# mount --bind /dev  $MOUNTPOINT/dev
+# mount --bind /proc $MOUNTPOINT/proc
+# mount --bind /sys  $MOUNTPOINT/sys
+# cp --dereference /etc/resolv.conf $MOUNTPOINT/etc/
+#
 # === 5. Setup inside Arch chroot ===
 arch-chroot $MOUNTPOINT /bin/bash <<EOF
 set -e
