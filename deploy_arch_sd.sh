@@ -87,7 +87,6 @@ sgdisk -n 1:0:+256M -t 1:0700 -c 1:"boot" $SD_DEV
 sgdisk -n 2:0:+4G -t 2:8200 -c 2:"swap" $SD_DEV
 sgdisk -n 3:0:0 -t 3:8300 -c 3:"root" $SD_DEV
 
-
 # Format boot partition
 mkfs.vfat -F32 ${SD_DEV}1
 
