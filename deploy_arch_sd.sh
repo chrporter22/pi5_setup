@@ -17,7 +17,7 @@
 # -- STEP 3: Insert SD Card and Boot Pi --
 # - Insert the card into your Raspberry Pi 5
 # - Connect ethernet cable to router & power on
-# - It should auto-connect via Ethernet and allow SSH logins to `pi@raspberrypi.local`
+# - It should auto-connect via Ethernet and allow SSH logins to `user@raspberrypi.local`
 
 # -- STEP 4: Connection via Ethernet (headless setup) --
 #  - Access Router Connected Device Page and locate Raspberry Pi5 IP address or grep for
@@ -75,6 +75,7 @@ for pkg in "${PACKAGES[@]}"; do
         sudo apt install -y "$pkg"
     fi
 done
+
  # === 2. Partition SD: Arch BOOT + SWAP (4GB) + ROOT ===
 echo "Partitioning SD card for Arch Linux..."
 
@@ -96,7 +97,12 @@ if mount | grep -q "${SD_DEV}2"; then
   sudo swapoff ${SD_DEV}2 || true
   sudo umount ${SD_DEV}2 || true
 fi
+
+# Format for swap
 sudo mkswap ${SD_DEV}2
+
+# Format root partition as ext4
+mkfs.ext4 -L root ${SD_DEV}3
 
 # === 3. Mount and Bootstrap Arch ===
 mkdir -p $MOUNTPOINT
