@@ -121,10 +121,11 @@ rm ArchLinuxARM-rpi-aarch64-latest.tar.gz
 mount --bind /dev  $MOUNTPOINT/dev
 mount --bind /proc $MOUNTPOINT/proc
 mount --bind /sys  $MOUNTPOINT/sys
-cp /etc/resolv.conf $MOUNTPOINT/etc/
+cp --dereference /etc/resolv.conf $MOUNTPOINT/etc/
 
 # === 5. Setup inside Arch chroot ===
 arch-chroot $MOUNTPOINT /bin/bash <<EOF
+set -e
 ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 hwclock --systohc
 
