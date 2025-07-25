@@ -139,6 +139,7 @@ cat > /etc/hosts <<HOSTS
 HOSTS
 
 pacman-key --init && pacman-key --populate archlinuxarm
+pacman -R linux-aarch64 --noconfirm
 pacman -Syu --noconfirm dosfstools linux-rpi linux-rpi-headers git stow sudo networkmanager iwd base-devel
 
 useradd -m -G wheel -s /bin/bash $USERNAME
