@@ -241,7 +241,7 @@ sudo -u $USERNAME bash ./data_sci_install.sh
 EOF
 
 
-# === 6. Validae boot and root 
+# === 6. Validate kernels 
 validate_kernel_match() {
   BOOT_MOUNT="$1"   # Mounted boot partition path
   ROOT_MOUNT="$2"   # Mounted Arch root partition path
