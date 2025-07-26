@@ -103,6 +103,32 @@ sudo mkswap ${SD_DEV}2
 # Format root partition as ext4
 mkfs.ext4 -L root ${SD_DEV}3
 
+# === 2.a Copy boot/firmware ===
+copy_boot_firmware() {
+  SRC_BOOT="/boot/firmware"
+  DEST_BOOT_MOUNT="$1"  # Mounted boot partition
+
+  REQUIRED_FILES=("start4.elf" "fixup4.dat" "*.dtb" "config.txt" "cmdline.txt")
+
+  echo "Validating firmware source directory..."
+  if [[ ! -d "$SRC_BOOT" ]]; then
+    echo "ERROR: Firmware source directory '$SRC_BOOT' not found!"
+    return 1
+  fi
+
+  echo "Copying boot firmware to $DEST_BOOT_MOUNT..."
+  sudo cp -rT "$SRC_BOOT" "$DEST_BOOT_MOUNT"
+
+  echo "Verifying required boot files..."
+  for file in "${REQUIRED_FILES[@]}"; do
+    if ! ls "$DEST_BOOT_MOUNT/$file" &>/dev/null; then
+      echo "Missing boot file: '$file'. Headless boot may fail."
+    fi
+  done
+
+  echo "Boot firmware copy complete."
+}
+
 # === 3. Mount and Bootstrap Arch ===
 mkdir -p $MOUNTPOINT
 mount $ROOT_PART $MOUNTPOINT
@@ -113,9 +139,13 @@ echo "Validating mounts..."
 mount | grep "$MOUNTPOINT" || { echo "Mount failed. Aborting."; exit 1; }
 echo "Mounts confirmed"
 
+
 curl -LO http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-aarch64-latest.tar.gz
 bsdtar -xpf ArchLinuxARM-rpi-aarch64-latest.tar.gz -C $MOUNTPOINT
 rm ArchLinuxARM-rpi-aarch64-latest.tar.gz
+
+# Proceed to copy firmware
+copy_boot_firmware "$MOUNTPOINT/boot"
 
 # === 4. Chroot prep ===
 # mount --bind /dev  $MOUNTPOINT/dev
@@ -210,12 +240,42 @@ chown -R $USERNAME:$USERNAME /home/$USERNAME
 sudo -u $USERNAME bash ./data_sci_install.sh
 EOF
 
-# === 6. Final Cleanup ===
-umount -R $MOUNTPOINT
+
+# === 6. Validae boot and root 
+validate_kernel_match() {
+  BOOT_MOUNT="$1"   # Mounted boot partition path
+  ROOT_MOUNT="$2"   # Mounted Arch root partition path
+
+  BOOT_KERNEL=$(basename $(ls "$BOOT_MOUNT"/kernel*.img 2>/dev/null | head -n 1))
+  ROOT_KERNEL_VER=$(chroot "$ROOT_MOUNT" uname -r 2>/dev/null)
+
+  echo "Boot kernel: $BOOT_KERNEL"
+  echo "Arch kernel: $ROOT_KERNEL_VER"
+
+  if [[ -z "$BOOT_KERNEL" || -z "$ROOT_KERNEL_VER" ]]; then
+    echo "Unable to detect kernel versions. Skipping validation..."
+    return 0
+  elif [[ "$BOOT_KERNEL" == *"$ROOT_KERNEL_VER"* ]]; then
+    echo "Kernels appear compatible."
+    return 0
+  else
+    echo "Kernel mismatch detected!"
+    return 1
+  fi
+}
+
+# Compare kernel versions before copying
+if ! validate_kernel_match "$MOUNTPOINT/boot" "$MOUNTPOINT/root"; then
+  echo "Deployment halted: kernel mismatch"
+  exit 1
+fi
+
+
+# === 7. Final Cleanup ===
+# umount -R $MOUNTPOINT
 echo "Arch Linux installed to SD! Reboot your Pi to enter your new dev/data sci setup!"
 
-
-# === 6.1 Reboot function ===
+# === 7.1 Reboot function ===
 # prompt_reboot() {
 #     echo -e "\nInstallation successful. Reboot now? (Y/n)"
 #     read -r reboot
@@ -224,7 +284,5 @@ echo "Arch Linux installed to SD! Reboot your Pi to enter your new dev/data sci 
 #     fi
 # }
 
-
 # Call function
 # prompt_reboot
-
