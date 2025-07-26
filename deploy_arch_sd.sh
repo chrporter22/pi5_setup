@@ -157,6 +157,13 @@ set -e
 ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 hwclock --systohc
 
+# Enable en_US.UTF-8 locale
+sed -i '/^#en_US.UTF-8 UTF-8/s/^#//' /etc/locale.gen
+locale-gen
+
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
+export LANG=en_US.UTF-8
+
 echo "$HOSTNAME" > /etc/hostname
 
 # Hosts file
