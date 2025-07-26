@@ -216,15 +216,15 @@ echo "Arch Linux installed to SD! Reboot your Pi to enter your new dev/data sci 
 
 
 # === 6.1 Reboot function ===
-prompt_reboot() {
-    echo -e "\nInstallation successful. Reboot now? (Y/n)"
-    read -r reboot
-    if [[ $reboot == "Y" || $reboot == "y" ]]; then
-        reboot
-    fi
-}
+# prompt_reboot() {
+#     echo -e "\nInstallation successful. Reboot now? (Y/n)"
+#     read -r reboot
+#     if [[ $reboot == "Y" || $reboot == "y" ]]; then
+#         reboot
+#     fi
+# }
 
 
 # Call function
-prompt_reboot
+# prompt_reboot
 
