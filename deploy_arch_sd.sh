@@ -139,19 +139,17 @@ echo "Validating mounts..."
 mount | grep "$MOUNTPOINT" || { echo "Mount failed. Aborting."; exit 1; }
 echo "Mounts confirmed"
 
-
 curl -LO http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-aarch64-latest.tar.gz
 bsdtar -xpf ArchLinuxARM-rpi-aarch64-latest.tar.gz -C $MOUNTPOINT
 rm ArchLinuxARM-rpi-aarch64-latest.tar.gz
 
-# Proceed to copy firmware
-copy_boot_firmware "$MOUNTPOINT/boot"
 
 # === 4. Chroot prep ===
 # mount --bind /dev  $MOUNTPOINT/dev
 # mount --bind /proc $MOUNTPOINT/proc
 # mount --bind /sys  $MOUNTPOINT/sys
 # cp --dereference /etc/resolv.conf $MOUNTPOINT/etc/
+
 
 # === 5. Setup inside Arch chroot ===
 arch-chroot $MOUNTPOINT /bin/bash <<EOF
@@ -240,6 +238,12 @@ chown -R $USERNAME:$USERNAME /home/$USERNAME
 sudo -u $USERNAME bash ./data_sci_install.sh
 EOF
 
+# === 5.b Reformat ARCH ARM boot and replace with Pi OS Lite ===
+mkfs.vfat -F32 $BOOT_PART   # optional: reformat for a clean slate
+mount $BOOT_PART "$MOUNTPOINT/boot"
+
+# Proceed to copy firmware
+copy_boot_firmware "$MOUNTPOINT/boot"
 
 # === 6. Validate kernels 
 validate_kernel_match() {
