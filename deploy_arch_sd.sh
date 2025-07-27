@@ -246,6 +246,13 @@ sudo -u $USERNAME bash ./data_sci_install.sh
 EOF
 
 # === 5.b Reformat ARCH ARM boot and replace with Pi OS Lite ===
+echo "Unmounting boot partition if mounted..."
+if mount | grep -q "$BOOT_PART"; then
+  sudo umount -l "$BOOT_PART" && echo "$BOOT_PART unmounted (lazy mode)"
+else
+  echo "$BOOT_PART was not mounted"
+fi
+
 mkfs.vfat -F32 $BOOT_PART   # optional: reformat for a clean slate
 mount $BOOT_PART "$MOUNTPOINT/boot"
 
