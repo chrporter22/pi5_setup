@@ -105,7 +105,7 @@ mkfs.ext4 -L root ${SD_DEV}3
 
 # === 2.a Copy boot/firmware ===
 copy_boot_firmware() {
-  SRC_BOOT="/boot/*"
+  SRC_BOOT="/boot"
   DEST_BOOT_MOUNT="$1"  # Mounted boot partition
 
   REQUIRED_FILES=("start4.elf" "fixup4.dat" "*.dtb" "config.txt" "cmdline.txt")
