@@ -184,6 +184,10 @@ echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 systemctl enable NetworkManager
 systemctl enable sshd
 
+# Confirm SSH config is sane
+sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+
 # Set Wi-Fi country for regulatory domain (no extra packages needed)
 echo "REGDOMAIN=$WIFI_COUNTRY" > /etc/default/regulatory-domain
 
@@ -243,6 +247,9 @@ cd dotfiles
 # stow */
 chown -R $USERNAME:$USERNAME /home/$USERNAME
 sudo -u $USERNAME bash ./data_sci_install.sh
+
+# Ensure cmdline.txt has correct root and console config
+echo "console=serial0,115200 console=tty1 root=LABEL=root rootfstype=ext4 fsck.repair=yes rootwait cfg80211.ieee80211_regdom=US" > /boot/cmdline.txt
 
 # Kernel Info Display
 echo "Kernel version inside chroot:"
