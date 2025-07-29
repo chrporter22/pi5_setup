@@ -243,6 +243,14 @@ cd dotfiles
 # stow */
 chown -R $USERNAME:$USERNAME /home/$USERNAME
 sudo -u $USERNAME bash ./data_sci_install.sh
+
+# Kernel Info Display
+echo "Kernel version inside chroot:"
+uname -a
+echo "=== Kernel Info ==="
+echo "Version: $(uname -r)"
+echo "Architecture: $(uname -m)"
+echo "Compiled On: $(uname -v)"
 EOF
 
 # === 5.b Reformat ARCH ARM boot and replace with Pi OS Lite ===
