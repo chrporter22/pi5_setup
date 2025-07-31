@@ -217,12 +217,35 @@ SERVICE
 systemctl enable wireless-regdom.service
 
 # Enable fstab & swap
-echo "$BOOT_PART /boot vfat defaults 0 1" >> /etc/fstab
-echo "$SWAP_PART none swap sw 0 0" >> /etc/fstab
-echo "$ROOT_PART / ext4 defaults 0 2" >> /etc/fstab
+# Get the UUID of the boot partition
+BOOT_UUID=$(blkid -s UUID -o value /dev/mmcblk0p1)
 
-mkswap $SWAP_PART
-swapon $SWAP_PART
+# Define the fstab entry
+BOOT_LINE="UUID=${BOOT_UUID} /boot vfat defaults 0 1"
+
+# Append to /etc/fstab inside schroot root
+grep -q "$BOOT_UUID" /etc/fstab || echo "$BOOT_LINE" >> /etc/fstab
+
+# Get the UUID of the swap partition
+SWAP_UUID=$(blkid -s UUID -o value /dev/mmcblk0p2)
+
+# Define the fstab entry
+FSTAB_LINE="UUID=${SWAP_UUID} none swap sw 0 0"
+
+# Append to /etc/fstab inside schroot root (assuming you're in it)
+grep -q "$SWAP_UUID" /etc/fstab || echo "$FSTAB_LINE" >> /etc/fstab
+
+# Get the UUID of the root partition
+ROOT_UUID=$(blkid -s UUID -o value /dev/mmcblk0p3)
+
+# Define the fstab entry
+ROOT_LINE="UUID=${ROOT_UUID} /ext4 defaults 0 2"
+
+# Append to /etc/fstab inside schroot root
+grep -q "$ROOT_UUID" /etc/fstab || echo "$ROOT_LINE" >> /etc/fstab
+
+sudo mkswap /dev/mmcblk0p2
+sudo swapon /dev/mmcblk0p2
 swapon --show
 
 # Wi-Fi config (NetworkManager)
