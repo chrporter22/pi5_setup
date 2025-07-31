@@ -190,10 +190,11 @@ pacman -Syu --noconfirm dosfstools linux-rpi linux-rpi-headers git stow sudo net
 useradd -m -G wheel -s /bin/bash $USERNAME
 echo "$USERNAME:$PI_PASSWORD" | chpasswd
 echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
+
 systemctl enable NetworkManager
 systemctl enable sshd
 
-# Set Wi-Fi country for regulatory domain (no extra packages needed)
+# Set Wi-Fi country for regulatory domain 
 echo "REGDOMAIN=$WIFI_COUNTRY" > /etc/default/regulatory-domain
 
 mkdir -p /etc/systemd/system/wireless-regdom.service.d
@@ -216,32 +217,19 @@ SERVICE
 
 systemctl enable wireless-regdom.service
 
-# Enable fstab & swap
-# Get the UUID of the boot partition
+# Enable fstab & swap | Get the UUID of the boot partition
 BOOT_UUID=$(blkid -s UUID -o value /dev/mmcblk0p1)
-
-# Define the fstab entry
 BOOT_LINE="UUID=${BOOT_UUID} /boot vfat defaults 0 1"
-
-# Append to /etc/fstab inside schroot root
 grep -q "$BOOT_UUID" /etc/fstab || echo "$BOOT_LINE" >> /etc/fstab
 
 # Get the UUID of the swap partition
 SWAP_UUID=$(blkid -s UUID -o value /dev/mmcblk0p2)
-
-# Define the fstab entry
-FSTAB_LINE="UUID=${SWAP_UUID} none swap sw 0 0"
-
-# Append to /etc/fstab inside schroot root (assuming you're in it)
-grep -q "$SWAP_UUID" /etc/fstab || echo "$FSTAB_LINE" >> /etc/fstab
+SWAP_LINE="UUID=${SWAP_UUID} none swap sw 0 0"
+grep -q "$SWAP_UUID" /etc/fstab || echo "$SWAP_LINE" >> /etc/fstab
 
 # Get the UUID of the root partition
 ROOT_UUID=$(blkid -s UUID -o value /dev/mmcblk0p3)
-
-# Define the fstab entry
 ROOT_LINE="UUID=${ROOT_UUID} /ext4 defaults 0 2"
-
-# Append to /etc/fstab inside schroot root
 grep -q "$ROOT_UUID" /etc/fstab || echo "$ROOT_LINE" >> /etc/fstab
 
 sudo mkswap /dev/mmcblk0p2
