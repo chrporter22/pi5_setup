@@ -220,7 +220,10 @@ systemctl enable wireless-regdom.service
 echo "$BOOT_PART /boot vfat defaults 0 1" >> /etc/fstab
 echo "$SWAP_PART none swap sw 0 0" >> /etc/fstab
 echo "$ROOT_PART / ext4 defaults 0 2" >> /etc/fstab
+
+mkswap $SWAP_PART
 swapon $SWAP_PART
+swapon --show
 
 # Wi-Fi config (NetworkManager)
 cat > /etc/NetworkManager/system-connections/wifi.nmconnection <<WIFI
