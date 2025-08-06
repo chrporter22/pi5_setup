@@ -158,20 +158,20 @@ ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 hwclock --systohc
 
 # Enable en_US.UTF-8 locale
-sed -i '/^#en_US.UTF-8 UTF-8/s/^#//' /etc/locale.gen
-locale-gen
+# sed -i '/^#en_US.UTF-8 UTF-8/s/^#//' /etc/locale.gen
+# locale-gen
+#
+# echo "LANG=en_US.UTF-8" > /etc/locale.conf
+# export LANG=en_US.UTF-8
+# export LC_ALL=en_US.UTF-8
 
-echo "LANG=en_US.UTF-8" > /etc/locale.conf
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
-
-echo "Server = https://nj.us.mirror.archlinuxarm.org/\$arch/\$repo" >> /etc/pacman.d/mirrorlist
-sed -i '/^
-
-\[options\]
-
-/a DisableSandbox\nDisableDownloadTimeout' /etc/pacman.conf
-echo "Added 'DisableSandbox' and 'DisableDownloadTimeout' to [options] in pacman.conf"
+# echo "Server = https://nj.us.mirror.archlinuxarm.org/\$arch/\$repo" >> /etc/pacman.d/mirrorlist
+# sed -i '/^
+#
+# \[options\]
+#
+# /a DisableSandbox\nDisableDownloadTimeout' /etc/pacman.conf
+# echo "Added 'DisableSandbox' and 'DisableDownloadTimeout' to [options] in pacman.conf"
 
 echo "$HOSTNAME" > /etc/hostname
 
