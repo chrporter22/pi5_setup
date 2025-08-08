@@ -238,9 +238,9 @@ ROOT_UUID=$(blkid -s UUID -o value /dev/mmcblk0p3)
 ROOT_LINE="UUID=${ROOT_UUID} /ext4 defaults 0 2"
 grep -q "$ROOT_UUID" /etc/fstab || echo "$ROOT_LINE" >> /etc/fstab
 
-sudo mkswap /dev/mmcblk0p2
-sudo swapon /dev/mmcblk0p2
-swapon --show
+# sudo mkswap /dev/mmcblk0p2
+# sudo swapon /dev/mmcblk0p2
+# swapon --show
 
 # Wi-Fi config (NetworkManager)
 cat > /etc/NetworkManager/system-connections/wifi.nmconnection <<WIFI
