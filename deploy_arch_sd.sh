@@ -190,7 +190,6 @@ pacman -Syu --noconfirm \
   linux-rpi \
   linux-rpi-headers \
   raspberrypi-bootloader \
-  raspberrypi-firmware \
   bc ncurses git stow sudo \
   networkmanager iwd base-devel
 
@@ -328,16 +327,6 @@ rm -rf control.tar.gz data.tar.gz debian-binary raspberrypi-firmware.deb lib boo
 echo "Firmware injection complete."
 
 # Update cmdline.txt
-echo "console=serial0,115200 console=tty1 root=LABEL=root rootfstype=ext4 fsck.repair=yes rootwait cfg80211.ieee80211_regdom=US" > /boot/cmdline.txt
-
-echo "cmdline.txt updated successfully."
-EOF
-
-# === 5.c Post-firmware chroot config ===
-arch-chroot $MOUNTPOINT /bin/bash <<EOF
-set -e
-
-# Ensure cmdline.txt has correct root and console config
 echo "console=serial0,115200 console=tty1 root=LABEL=root rootfstype=ext4 fsck.repair=yes rootwait cfg80211.ieee80211_regdom=US" > /boot/cmdline.txt
 
 echo "cmdline.txt updated successfully."
