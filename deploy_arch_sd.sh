@@ -265,8 +265,8 @@ WIFI
 
 chmod 600 /etc/NetworkManager/system-connections/wifi.nmconnection
 chown root:root /etc/NetworkManager/system-connections/wifi.nmconnection
-nmcli connection reload
-nmcli connection show wifi
+# nmcli connection reload
+# nmcli connection show wifi
 
 
 # Dotfiles setup
