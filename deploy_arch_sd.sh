@@ -308,7 +308,8 @@ set -e
 echo "Injecting raspberrypi-firmware from Debian package..."
 
 # Download the firmware package
-wget -O /tmp/raspberrypi-firmware.deb http://archive.raspberrypi.org/debian/pool/main/r/raspberrypi-firmware/raspberrypi-firmware_1.20230802-1_arm64.deb
+wget -O /tmp/raspi-firmware.deb \
+  http://archive.raspberrypi.org/debian/pool/main/r/raspi-firmware/raspi-firmware_1.20250430-4_all.deb
 
 # Extract contents
 cd /tmp
