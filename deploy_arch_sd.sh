@@ -265,6 +265,10 @@ method=auto
 WIFI
 
 chmod 600 /etc/NetworkManager/system-connections/wifi.nmconnection
+chown root:root /etc/NetworkManager/system-connections/wifi.nmconnection
+nmcli connection reload
+nmcli connection show wifi
+
 
 # Dotfiles setup
 cd /home/$USERNAME
@@ -296,6 +300,38 @@ mount $BOOT_PART "$MOUNTPOINT/boot"
 
 # Proceed to copy firmware
 copy_boot_firmware "$MOUNTPOINT/boot"
+
+
+# === 5.b Firmware Injection and Post-config in chroot ===
+arch-chroot "$MOUNTPOINT" /bin/bash <<EOF
+set -e
+
+echo "Injecting raspberrypi-firmware from Debian package..."
+
+# Download the firmware package
+wget -O /tmp/raspberrypi-firmware.deb http://archive.raspberrypi.org/debian/pool/main/r/raspberrypi-firmware/raspberrypi-firmware_1.20230802-1_arm64.deb
+
+# Extract contents
+cd /tmp
+ar x raspberrypi-firmware.deb
+tar -xzf data.tar.gz
+
+# Copy firmware files
+cp -r lib/firmware/* /lib/firmware/
+
+# Optional: Copy bootloader files (only if needed)
+# cp -r boot/* /boot/
+
+# Clean up
+rm -rf control.tar.gz data.tar.gz debian-binary raspberrypi-firmware.deb lib boot
+
+echo "Firmware injection complete."
+
+# Update cmdline.txt
+echo "console=serial0,115200 console=tty1 root=LABEL=root rootfstype=ext4 fsck.repair=yes rootwait cfg80211.ieee80211_regdom=US" > /boot/cmdline.txt
+
+echo "cmdline.txt updated successfully."
+EOF
 
 # === 5.c Post-firmware chroot config ===
 arch-chroot $MOUNTPOINT /bin/bash <<EOF
