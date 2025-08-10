@@ -328,7 +328,7 @@ cp -r lib/firmware/* /lib/firmware/
 # cp -r boot/* /boot/
 
 # Clean up
-rm -rf control.tar.gz data.tar.gz debian-binary raspberrypi-firmware.deb lib boot
+rm -rf control.tar.gz data.tar.gz debian-binary raspi-firmware.deb lib boot
 
 echo "Firmware injection complete."
 
