@@ -310,7 +310,6 @@ tar -xzf data.tar.gz
 # Make sure the target boot directory exists
 mkdir -p /boot
 
-# Check if the kernel file exists and matches
 if [[ -f /boot/kernel8.img ]]; then
   existing_kernel=$(file /boot/kernel8.img)
   echo "Existing kernel: $existing_kernel"
@@ -328,7 +327,7 @@ if [[ -f /boot/kernel8.img ]]; then
 else
   echo "No existing kernel found. Copying kernel from .deb"
   cp /tmp/boot/kernel8.img /boot/
-fi
+fi   
 
 # Copy Broadcom firmware files to /boot/
 # Only copy if file doesn't exist
