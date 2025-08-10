@@ -311,9 +311,14 @@ echo "Injecting raspberrypi-firmware from Debian package..."
 wget -O /tmp/raspi-firmware.deb \
   http://archive.raspberrypi.org/debian/pool/main/r/raspi-firmware/raspi-firmware_1.20250430-4_all.deb
 
-# Extract contents
+# Ensure we are in the correct directory to extract the package
 cd /tmp
-ar x raspberrypi-firmware.deb
+
+# Confirm the file is there
+ls -l /tmp/raspi-firmware.deb
+
+# Extract contents of the .deb file
+ar x /tmp/raspi-firmware.deb
 tar -xzf data.tar.gz
 
 # Copy firmware files
@@ -327,13 +332,29 @@ rm -rf control.tar.gz data.tar.gz debian-binary raspberrypi-firmware.deb lib boo
 
 echo "Firmware injection complete."
 
+echo "Ensuring brcmfmac module loads..."
+
+echo "brcmfmac" > /etc/modules-load.d/brcmfmac.conf
+
+# Check firmware file
+if [[ ! -f /lib/firmware/brcm/brcmfmac43455-sdio.bin ]]; then
+  echo "WARNING: Broadcom firmware not found. Wi-Fi may not work!"
+fi
+
+# Ensure wifi enabled in config.txt
+if ! grep -q "^dtparam=wifi=on" /boot/config.txt; then
+  echo "dtparam=wifi=on" >> /boot/config.txt
+fi
+
+
 # Update cmdline.txt
 echo "console=serial0,115200 console=tty1 root=LABEL=root rootfstype=ext4 fsck.repair=yes rootwait cfg80211.ieee80211_regdom=US" > /boot/cmdline.txt
 
 echo "cmdline.txt updated successfully."
 EOF
 
-# === 6. Validate kernels 
+
+# # === 6. Validate kernels 
 validate_kernel_match() {
   BOOT_MOUNT="$1"   # Mounted boot partition path
   ROOT_MOUNT="$2"   # Mounted Arch root partition path
