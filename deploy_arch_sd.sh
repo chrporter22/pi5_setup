@@ -310,11 +310,24 @@ tar -xzf data.tar.gz
 # Make sure the target boot directory exists
 mkdir -p /boot
 
+
+# === Define helper function ===
+copy_file_if_not_exists() {
+  local src="$1"
+  local dest="$2"
+  if [[ ! -f "$dest" ]]; then
+    echo "Copying $src to $dest"
+    cp "$src" "$dest"
+  else
+    echo "Skipping $src, already exists."
+  fi
+}
+
+# === Kernel comparison logic ===
 if [[ -f /boot/kernel8.img ]]; then
   existing_kernel=$(file /boot/kernel8.img)
   echo "Existing kernel: $existing_kernel"
-  
-  # Check if the kernel from the .deb matches
+
   deb_kernel=$(file /tmp/boot/kernel8.img)
   echo "Kernel from .deb: $deb_kernel"
 
@@ -327,27 +340,14 @@ if [[ -f /boot/kernel8.img ]]; then
 else
   echo "No existing kernel found. Copying kernel from .deb"
   cp /tmp/boot/kernel8.img /boot/
-fi   
+fi
 
-# Copy Broadcom firmware files to /boot/
-# Only copy if file doesn't exist
-copy_file_if_not_exists() {
-  src="$1"
-  dest="$2"
-  if [[ ! -f "$dest" ]]; then
-    echo "Copying $src to $dest"
-    cp "$src" "$dest"
-  else
-    echo "Skipping $src, already exists."
-  fi
-}
-
-# Copy necessary boot files from the .deb to /boot/
+# === Copy bootloader and device tree files ===
 copy_file_if_not_exists /tmp/boot/start.elf /boot/start.elf
 copy_file_if_not_exists /tmp/boot/bootcode.bin /boot/bootcode.bin
 copy_file_if_not_exists /tmp/boot/bcm2711-rpi-4-b.dtb /boot/bcm2711-rpi-4-b.dtb
 
-# Copy Broadcom Wi-Fi firmware files if they don't already exist
+# === Copy Broadcom Wi-Fi firmware ===
 copy_file_if_not_exists /tmp/lib/firmware/brcm/brcmfmac43455-sdio.bin /lib/firmware/brcm/brcmfmac43455-sdio.bin
 
 # Clean up
