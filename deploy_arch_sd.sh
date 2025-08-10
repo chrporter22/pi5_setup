@@ -144,13 +144,6 @@ bsdtar -xpf ArchLinuxARM-rpi-aarch64-latest.tar.gz -C $MOUNTPOINT
 rm ArchLinuxARM-rpi-aarch64-latest.tar.gz
 
 
-# === 4. Chroot prep ===
-# mount --bind /dev  $MOUNTPOINT/dev
-# mount --bind /proc $MOUNTPOINT/proc
-# mount --bind /sys  $MOUNTPOINT/sys
-# cp --dereference /etc/resolv.conf $MOUNTPOINT/etc/
-
-
 # === 5. Setup inside Arch chroot ===
 arch-chroot $MOUNTPOINT /bin/bash <<EOF
 set -e
@@ -238,10 +231,6 @@ ROOT_UUID=$(blkid -s UUID -o value /dev/mmcblk0p3)
 ROOT_LINE="UUID=${ROOT_UUID} /ext4 defaults 0 2"
 grep -q "$ROOT_UUID" /etc/fstab || echo "$ROOT_LINE" >> /etc/fstab
 
-# sudo mkswap /dev/mmcblk0p2
-# sudo swapon /dev/mmcblk0p2
-# swapon --show
-
 # Wi-Fi config (NetworkManager)
 cat > /etc/NetworkManager/system-connections/wifi.nmconnection <<WIFI
 [connection]
@@ -265,9 +254,6 @@ WIFI
 
 chmod 600 /etc/NetworkManager/system-connections/wifi.nmconnection
 chown root:root /etc/NetworkManager/system-connections/wifi.nmconnection
-# nmcli connection reload
-# nmcli connection show wifi
-
 
 # Dotfiles setup
 cd /home/$USERNAME
@@ -305,7 +291,7 @@ copy_boot_firmware "$MOUNTPOINT/boot"
 arch-chroot "$MOUNTPOINT" /bin/bash <<EOF
 set -e
 
-echo "Injecting raspberrypi-firmware from Debian package..."
+echo "Injecting Broadcom firmware from Debian package..."
 
 # Download the firmware package
 wget -O /tmp/raspi-firmware.deb \
@@ -321,38 +307,73 @@ ls -l /tmp/raspi-firmware.deb
 ar x /tmp/raspi-firmware.deb
 tar -xzf data.tar.gz
 
-# Copy firmware files
-cp -r lib/firmware/* /lib/firmware/
+# Make sure the target boot directory exists
+mkdir -p /boot
 
-# Optional: Copy bootloader files (only if needed)
-# cp -r boot/* /boot/
+# Check if the kernel file exists and matches
+if [[ -f /boot/kernel8.img ]]; then
+  existing_kernel=$(file /boot/kernel8.img)
+  echo "Existing kernel: $existing_kernel"
+  
+  # Check if the kernel from the .deb matches
+  deb_kernel=$(file /tmp/boot/kernel8.img)
+  echo "Kernel from .deb: $deb_kernel"
+
+  if [[ "$existing_kernel" == "$deb_kernel" ]]; then
+    echo "Kernel versions match, skipping copy."
+  else
+    echo "Kernel mismatch, replacing kernel in /boot"
+    cp /tmp/boot/kernel8.img /boot/
+  fi
+else
+  echo "No existing kernel found. Copying kernel from .deb"
+  cp /tmp/boot/kernel8.img /boot/
+fi
+
+# Copy Broadcom firmware files to /boot/
+# Only copy if file doesn't exist
+copy_file_if_not_exists() {
+  src="$1"
+  dest="$2"
+  if [[ ! -f "$dest" ]]; then
+    echo "Copying $src to $dest"
+    cp "$src" "$dest"
+  else
+    echo "Skipping $src, already exists."
+  fi
+}
+
+# Copy necessary boot files from the .deb to /boot/
+copy_file_if_not_exists /tmp/boot/start.elf /boot/start.elf
+copy_file_if_not_exists /tmp/boot/bootcode.bin /boot/bootcode.bin
+copy_file_if_not_exists /tmp/boot/bcm2711-rpi-4-b.dtb /boot/bcm2711-rpi-4-b.dtb
+
+# Copy Broadcom Wi-Fi firmware files if they don't already exist
+copy_file_if_not_exists /tmp/lib/firmware/brcm/brcmfmac43455-sdio.bin /lib/firmware/brcm/brcmfmac43455-sdio.bin
 
 # Clean up
 rm -rf control.tar.gz data.tar.gz debian-binary raspi-firmware.deb lib boot
 
-echo "Firmware injection complete."
+echo "Firmware and bootloader injection complete."
 
-echo "Ensuring brcmfmac module loads..."
-
+# Ensuring brcmfmac module loads
 echo "brcmfmac" > /etc/modules-load.d/brcmfmac.conf
 
-# Check firmware file
+# Check if the Broadcom firmware is present
 if [[ ! -f /lib/firmware/brcm/brcmfmac43455-sdio.bin ]]; then
   echo "WARNING: Broadcom firmware not found. Wi-Fi may not work!"
 fi
 
-# Ensure wifi enabled in config.txt
+# Ensure Wi-Fi is enabled in config.txt
 if ! grep -q "^dtparam=wifi=on" /boot/config.txt; then
   echo "dtparam=wifi=on" >> /boot/config.txt
 fi
 
-
-# Update cmdline.txt
+# Update cmdline.txt (this is part of your original script)
 echo "console=serial0,115200 console=tty1 root=LABEL=root rootfstype=ext4 fsck.repair=yes rootwait cfg80211.ieee80211_regdom=US" > /boot/cmdline.txt
 
 echo "cmdline.txt updated successfully."
 EOF
-
 
 # # === 6. Validate kernels 
 validate_kernel_match() {
