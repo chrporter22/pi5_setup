@@ -183,7 +183,7 @@ pacman -Syu --noconfirm \
   linux-rpi \
   linux-rpi-headers \
   raspberrypi-bootloader \
-  bc ncurses git stow sudo \
+  bc ncurses wget git stow sudo \
   networkmanager iwd base-devel
 
 useradd -m -G wheel -s /bin/bash $USERNAME
