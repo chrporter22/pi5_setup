@@ -286,9 +286,8 @@ mount $BOOT_PART "$MOUNTPOINT/boot"
 # Proceed to copy firmware
 copy_boot_firmware "$MOUNTPOINT/boot"
 
-
 # === 5.b Firmware Injection and Post-config in chroot ===
-arch-chroot "$MOUNTPOINT" /bin/bash <<EOF
+arch-chroot "$MOUNTPOINT" /bin/bash <<'EOF'
 set -e
 
 echo "Injecting Broadcom firmware from Debian package..."
@@ -297,19 +296,13 @@ echo "Injecting Broadcom firmware from Debian package..."
 wget -O /tmp/raspi-firmware.deb \
   http://archive.raspberrypi.org/debian/pool/main/r/raspi-firmware/raspi-firmware_1.20250430-4_all.deb
 
-# Ensure we are in the correct directory to extract the package
 cd /tmp
-
-# Confirm the file is there
 ls -l /tmp/raspi-firmware.deb
 
-# Extract contents of the .deb file
 ar x /tmp/raspi-firmware.deb
 tar -xzf data.tar.gz
 
-# Make sure the target boot directory exists
 mkdir -p /boot
-
 
 # === Define helper function ===
 copy_file_if_not_exists() {
@@ -350,12 +343,12 @@ copy_file_if_not_exists /tmp/boot/bcm2711-rpi-4-b.dtb /boot/bcm2711-rpi-4-b.dtb
 # === Copy Broadcom Wi-Fi firmware ===
 copy_file_if_not_exists /tmp/lib/firmware/brcm/brcmfmac43455-sdio.bin /lib/firmware/brcm/brcmfmac43455-sdio.bin
 
-# Clean up
-rm -rf control.tar.gz data.tar.gz debian-binary raspi-firmware.deb lib boot
+# Clean up extracted files only
+rm -rf /tmp/control.tar.gz /tmp/data.tar.gz /tmp/debian-binary /tmp/raspi-firmware.deb /tmp/lib /tmp/boot
 
 echo "Firmware and bootloader injection complete."
 
-# Ensuring brcmfmac module loads
+# Ensure brcmfmac module loads
 echo "brcmfmac" > /etc/modules-load.d/brcmfmac.conf
 
 # Check if the Broadcom firmware is present
@@ -368,7 +361,7 @@ if ! grep -q "^dtparam=wifi=on" /boot/config.txt; then
   echo "dtparam=wifi=on" >> /boot/config.txt
 fi
 
-# Update cmdline.txt (this is part of your original script)
+# Update cmdline.txt
 echo "console=serial0,115200 console=tty1 root=LABEL=root rootfstype=ext4 fsck.repair=yes rootwait cfg80211.ieee80211_regdom=US" > /boot/cmdline.txt
 
 echo "cmdline.txt updated successfully."
