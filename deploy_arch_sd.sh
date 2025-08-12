@@ -191,7 +191,7 @@ echo "$USERNAME:$PI_PASSWORD" | chpasswd
 echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 
 systemctl enable NetworkManager
-systemctl enable sshd
+# systemctl enable sshd
 
 # Set Wi-Fi country for regulatory domain 
 echo "REGDOMAIN=$WIFI_COUNTRY" > /etc/default/regulatory-domain
@@ -315,25 +315,6 @@ copy_file_if_not_exists() {
     echo "Skipping $src, already exists."
   fi
 }
-
-# === Kernel comparison logic ===
-# if [[ -f /boot/kernel8.img ]]; then
-#   existing_kernel=$(file /boot/kernel8.img)
-#   echo "Existing kernel: $existing_kernel"
-#
-#   deb_kernel=$(file /tmp/boot/kernel8.img)
-#   echo "Kernel from .deb: $deb_kernel"
-#
-#   if [[ "$existing_kernel" == "$deb_kernel" ]]; then
-#     echo "Kernel versions match, skipping copy."
-#   else
-#     echo "Kernel mismatch, replacing kernel in /boot"
-#     cp /tmp/boot/kernel8.img /boot/
-#   fi
-# else
-#   echo "No existing kernel found. Copying kernel from .deb"
-#   cp /tmp/boot/kernel8.img /boot/
-# fi
 
 # === Copy bootloader and device tree files ===
 copy_file_if_not_exists /tmp/boot/start.elf /boot/start.elf
