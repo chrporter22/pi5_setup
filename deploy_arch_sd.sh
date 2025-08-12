@@ -191,14 +191,35 @@ echo "$USERNAME:$PI_PASSWORD" | chpasswd
 echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 
 systemctl enable NetworkManager
-# systemctl enable sshd
 
 # Ensure OpenSSH is installed
 pacman -S --noconfirm openssh
 
-# Enable and start sshd
+# Generate host keys if missing
+ssh-keygen -A
+
+# Ensure sshd_config exists
+if [[ ! -f /etc/ssh/sshd_config ]]; then
+  echo "Creating default sshd_config..."
+  echo -e "Port 22\nPermitRootLogin no\nPasswordAuthentication yes" > /etc/ssh/sshd_config
+fi
+
+# Enable sshd to start on boot
 systemctl enable sshd
+
+# Ensure system boots to multi-user target
+systemctl enable multi-user.target
+
+# Optional: Create /boot/ssh as a trigger (some setups use this)
+touch /boot/ssh
+
+# Optional: Add rc.local failsafe to start sshd manually
+cat <<EOF > /etc/rc.local
+#!/bin/bash
 systemctl start sshd
+EOF
+
+chmod +x /etc/rc.local
 
 # Set Wi-Fi country for regulatory domain 
 echo "REGDOMAIN=$WIFI_COUNTRY" > /etc/default/regulatory-domain
