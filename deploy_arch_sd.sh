@@ -317,23 +317,23 @@ copy_file_if_not_exists() {
 }
 
 # === Kernel comparison logic ===
-if [[ -f /boot/kernel8.img ]]; then
-  existing_kernel=$(file /boot/kernel8.img)
-  echo "Existing kernel: $existing_kernel"
-
-  deb_kernel=$(file /tmp/boot/kernel8.img)
-  echo "Kernel from .deb: $deb_kernel"
-
-  if [[ "$existing_kernel" == "$deb_kernel" ]]; then
-    echo "Kernel versions match, skipping copy."
-  else
-    echo "Kernel mismatch, replacing kernel in /boot"
-    cp /tmp/boot/kernel8.img /boot/
-  fi
-else
-  echo "No existing kernel found. Copying kernel from .deb"
-  cp /tmp/boot/kernel8.img /boot/
-fi
+# if [[ -f /boot/kernel8.img ]]; then
+#   existing_kernel=$(file /boot/kernel8.img)
+#   echo "Existing kernel: $existing_kernel"
+#
+#   deb_kernel=$(file /tmp/boot/kernel8.img)
+#   echo "Kernel from .deb: $deb_kernel"
+#
+#   if [[ "$existing_kernel" == "$deb_kernel" ]]; then
+#     echo "Kernel versions match, skipping copy."
+#   else
+#     echo "Kernel mismatch, replacing kernel in /boot"
+#     cp /tmp/boot/kernel8.img /boot/
+#   fi
+# else
+#   echo "No existing kernel found. Copying kernel from .deb"
+#   cp /tmp/boot/kernel8.img /boot/
+# fi
 
 # === Copy bootloader and device tree files ===
 copy_file_if_not_exists /tmp/boot/start.elf /boot/start.elf
