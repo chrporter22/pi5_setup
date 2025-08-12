@@ -192,34 +192,28 @@ echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 
 systemctl enable NetworkManager
 
-# Ensure OpenSSH is installed
+# === Install OpenSSH ===
 pacman -S --noconfirm openssh
 
-# Generate host keys if missing
+# === Generate host keys ===
 ssh-keygen -A
 
-# Ensure sshd_config exists
+# === Create sshd_config if missing ===
 if [[ ! -f /etc/ssh/sshd_config ]]; then
-  echo "Creating default sshd_config..."
-  echo -e "Port 22\nPermitRootLogin no\nPasswordAuthentication yes" > /etc/ssh/sshd_config
+  cat > /etc/ssh/sshd_config <<CONFIG
+Port 22
+PermitRootLogin no
+PasswordAuthentication yes
+UsePAM yes
+Subsystem sftp /usr/lib/ssh/sftp-server
+CONFIG
 fi
 
-# Enable sshd to start on boot
-systemctl enable sshd
+# === Enable sshd manually by creating symlink ===
+ln -sf /usr/lib/systemd/system/sshd.service /etc/systemd/system/multi-user.target.wants/sshd.service
 
-# Ensure system boots to multi-user target
-systemctl enable multi-user.target
-
-# Optional: Create /boot/ssh as a trigger (some setups use this)
+# === Touch a flag file if needed ===
 touch /boot/ssh
-
-# Optional: Add rc.local failsafe to start sshd manually
-cat <<EOF > /etc/rc.local
-#!/bin/bash
-systemctl start sshd
-EOF
-
-chmod +x /etc/rc.local
 
 # Set Wi-Fi country for regulatory domain 
 echo "REGDOMAIN=$WIFI_COUNTRY" > /etc/default/regulatory-domain
