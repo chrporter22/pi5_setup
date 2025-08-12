@@ -193,6 +193,13 @@ echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
 systemctl enable NetworkManager
 # systemctl enable sshd
 
+# Ensure OpenSSH is installed
+pacman -S --noconfirm openssh
+
+# Enable and start sshd
+systemctl enable sshd
+systemctl start sshd
+
 # Set Wi-Fi country for regulatory domain 
 echo "REGDOMAIN=$WIFI_COUNTRY" > /etc/default/regulatory-domain
 
