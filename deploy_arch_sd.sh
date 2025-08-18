@@ -165,7 +165,7 @@ pacman -R uboot-raspberrypi --noconfirm
 pacman -Syu --overwrite "/boot/*" linux-rpi
 pacman -Syu --noconfirm \
   dosfstools \
-  firmware-raspberrypi \
+  linux-rpi \
   linux-rpi-headers \
   raspberrypi-bootloader \
   bc ncurses wget git stow sudo \
