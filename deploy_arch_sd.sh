@@ -55,6 +55,7 @@ BOOT_PART="${SD_DEV}1"
 SWAP_PART="${SD_DEV}2"
 ROOT_PART="${SD_DEV}3"
 MOUNTPOINT="/mnt"
+DOWNLOADDIR=/tmp/pi
 
 HOSTNAME="rpi-arch"
 USERNAME="pi5_sd"
@@ -103,32 +104,6 @@ sudo mkswap ${SD_DEV}2
 # Format root partition as ext4
 mkfs.ext4 -L root ${SD_DEV}3
 
-# === 2.a Copy boot/firmware ===
-copy_boot_firmware() {
-  SRC_BOOT="/boot/firmware"
-  DEST_BOOT_MOUNT="$1"  # Mounted boot partition
-
-  REQUIRED_FILES=("start4.elf" "fixup4.dat" "*.dtb" "config.txt" "cmdline.txt")
-
-  echo "Validating firmware source directory..."
-  if [[ ! -d "$SRC_BOOT" ]]; then
-    echo "ERROR: Firmware source directory '$SRC_BOOT' not found!"
-    return 1
-  fi
-
-  echo "Copying boot firmware to $DEST_BOOT_MOUNT..."
-  sudo cp -rT "$SRC_BOOT" "$DEST_BOOT_MOUNT"
-
-  echo "Verifying required boot files..."
-  for file in "${REQUIRED_FILES[@]}"; do
-    if ! ls "$DEST_BOOT_MOUNT/$file" &>/dev/null; then
-      echo "Missing boot file: '$file'. Headless boot may fail."
-    fi
-  done
-
-  echo "Boot firmware copy complete."
-}
-
 # === 3. Mount and Bootstrap Arch ===
 mkdir -p $MOUNTPOINT
 mount $ROOT_PART $MOUNTPOINT
@@ -142,6 +117,15 @@ echo "Mounts confirmed"
 curl -LO http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-aarch64-latest.tar.gz
 bsdtar -xpf ArchLinuxARM-rpi-aarch64-latest.tar.gz -C $MOUNTPOINT
 rm ArchLinuxARM-rpi-aarch64-latest.tar.gz
+
+rm -rf ${MOUNTPOINT}/boot/*
+
+mkdir -p ${DOWNLOADDIR}/linux-rpi
+pushd ${DOWNLOADDIR}/linux-rpi
+curl -JLO http://mirror.archlinuxarm.org/aarch64/core/linux-rpi-6.12.41-1-aarch64.pkg.tar.xz
+tar xf *
+cp -rf boot/* ${MOUNTPOINT}/boot/
+popd
 
 
 # === 5. Setup inside Arch chroot ===
@@ -178,9 +162,10 @@ HOSTS
 pacman-key --init && pacman-key --populate archlinuxarm
 pacman -R linux-aarch64 --noconfirm
 pacman -R uboot-raspberrypi --noconfirm
+pacman -Syu --overwrite "/boot/*" linux-rpi
 pacman -Syu --noconfirm \
   dosfstools \
-  linux-rpi \
+  firmware-raspberrypi \
   linux-rpi-headers \
   raspberrypi-bootloader \
   bc ncurses wget git stow sudo \
@@ -293,20 +278,6 @@ echo "Version: $(uname -r)"
 echo "Architecture: $(uname -m)"
 echo "Compiled On: $(uname -v)"
 EOF
-
-# === 5.b Reformat ARCH ARM boot and replace with Pi OS Lite ===
-echo "Unmounting boot partition if mounted..."
-if mount | grep -q "$BOOT_PART"; then
-  sudo umount -l "$BOOT_PART" && echo "$BOOT_PART unmounted (lazy mode)"
-else
-  echo "$BOOT_PART was not mounted"
-fi
-
-mkfs.vfat -F32 $BOOT_PART   # optional: reformat for a clean slate
-mount $BOOT_PART "$MOUNTPOINT/boot"
-
-# Proceed to copy firmware
-copy_boot_firmware "$MOUNTPOINT/boot"
 
 # === 5.b Firmware Injection and Post-config in chroot ===
 arch-chroot "$MOUNTPOINT" /bin/bash <<'EOF'
