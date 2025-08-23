@@ -348,8 +348,21 @@ if ! grep -q "^dtparam=wifi=on" /boot/config.txt; then
   echo "dtparam=wifi=on" >> /boot/config.txt
 fi
 
+# Get UUIDs inside chroot
+ROOT_U=$(blkid -s UUID -o value /dev/mmcblk0p3)
+BOOT_U=$(blkid -s UUID -o value /dev/mmcblk0p1)
+SWAP_U=$(blkid -s UUID -o value /dev/mmcblk0p2)
+
+# === Write fstab ===
+cat > /etc/fstab <<FSTAB
+UUID=${BOOT_U}  /boot   vfat    defaults        0  0
+UUID=${ROOT_U}  /       ext4    defaults        0  1
+UUID=${SWAP_U}  none    swap    sw              0  0
+FSTAB
+
+
 # Update cmdline.txt
-echo "console=serial0,115200 console=tty1 root=LABEL=root rootfstype=ext4 fsck.repair=yes rootwait cfg80211.ieee80211_regdom=US" > /boot/cmdline.txt
+echo "console=serial0,115200 console=tty1 root=LABEL=root rootfstype=ext4 fsck.repair=yes rootwait rw cfg80211.ieee80211_regdom=US" > /boot/cmdline.txt
 
 echo "cmdline.txt updated successfully."
 mount -o remount,rw /
