@@ -39,6 +39,12 @@
 # Add WIFI_SSID, WIFI_PASS, WIFI_Country, and PI_PASSWORD
 # Run bash deploy_arch_sd.sh script
 
+# -- STEP 7: Enable Read - Write to Root File System
+# User may need to delete ssh/known_hosts if fingerprint error for ssh tunnel
+# Remove previous fingerprint ids /root/.ssh/known_hosts
+# Enable read - write for root file system 'mount -o remount,rw /'
+# Test pacman -Su
+
 set -e
 
 # === Load secrets from .env if available ===
