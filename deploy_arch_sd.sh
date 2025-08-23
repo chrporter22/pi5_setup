@@ -36,7 +36,7 @@
 # git clone https://github.com/chrporter22/pi5_setup.git
 # cd pi5_setup
 # Create an .env file for repo setup:
-# Add WIFI_SSID, WIFI_PASS, WIFI_Country, and PI_PASSWORD 
+# Add WIFI_SSID, WIFI_PASS, WIFI_Country, and PI_PASSWORD
 # Run bash deploy_arch_sd.sh script
 
 set -e
@@ -122,15 +122,20 @@ rm -rf ${MOUNTPOINT}/boot/*
 
 mkdir -p ${DOWNLOADDIR}/linux-rpi
 pushd ${DOWNLOADDIR}/linux-rpi
-curl -JLO http://mirror.archlinuxarm.org/aarch64/core/linux-rpi-6.12.41-1-aarch64.pkg.tar.xz
+curl -JLO http://mirror.archlinuxarm.org/aarch64/core/linux-rpi-6.12.42-1-aarch64.pkg.tar.xz
 tar xf *
 cp -rf boot/* ${MOUNTPOINT}/boot/
 popd
 
+cp ${DOWNLOADDIR}/linux-rpi/*.pkg.tar.xz ${MOUNTPOINT}/root/
 
 # === 5. Setup inside Arch chroot ===
 arch-chroot $MOUNTPOINT /bin/bash <<EOF
 set -e
+
+# Force remount root as read-write just in case
+mount -o remount,rw /
+
 ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 hwclock --systohc
 
@@ -162,12 +167,13 @@ HOSTS
 pacman-key --init && pacman-key --populate archlinuxarm
 pacman -R linux-aarch64 --noconfirm
 pacman -R uboot-raspberrypi --noconfirm
-pacman -Syu --overwrite "/boot/*" linux-rpi
-pacman -Syu --noconfirm \
-  dosfstools \
+
+rm -rf /boot/*
+pacman -Syu --noconfirm --overwrite '/boot/*' \
   linux-rpi \
   linux-rpi-headers \
   raspberrypi-bootloader \
+  dosfstools \
   bc ncurses wget git stow sudo \
   networkmanager iwd base-devel
 
@@ -200,7 +206,7 @@ ln -sf /usr/lib/systemd/system/sshd.service /etc/systemd/system/multi-user.targe
 # === Touch a flag file if needed ===
 touch /boot/ssh
 
-# Set Wi-Fi country for regulatory domain 
+# Set Wi-Fi country for regulatory domain
 echo "REGDOMAIN=$WIFI_COUNTRY" > /etc/default/regulatory-domain
 
 mkdir -p /etc/systemd/system/wireless-regdom.service.d
@@ -277,11 +283,15 @@ echo "=== Kernel Info ==="
 echo "Version: $(uname -r)"
 echo "Architecture: $(uname -m)"
 echo "Compiled On: $(uname -v)"
+sync
 EOF
 
 # === 5.b Firmware Injection and Post-config in chroot ===
 arch-chroot "$MOUNTPOINT" /bin/bash <<'EOF'
 set -e
+
+# Force remount root as read-write just in case
+mount -o remount,rw /
 
 echo "Injecting Broadcom firmware from Debian package..."
 
@@ -341,7 +351,7 @@ echo "console=serial0,115200 console=tty1 root=LABEL=root rootfstype=ext4 fsck.r
 echo "cmdline.txt updated successfully."
 EOF
 
-# # === 6. Validate kernels 
+# # === 6. Validate kernels
 validate_kernel_match() {
   BOOT_MOUNT="$1"   # Mounted boot partition path
   ROOT_MOUNT="$2"   # Mounted Arch root partition path
