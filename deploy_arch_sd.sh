@@ -109,6 +109,7 @@ sudo mkswap ${SD_DEV}2
 
 # Format root partition as ext4
 mkfs.ext4 -L root ${SD_DEV}3
+e2fsck -f ${ROOT_PART}
 
 # === 3. Mount and Bootstrap Arch ===
 mkdir -p $MOUNTPOINT
@@ -138,9 +139,6 @@ cp ${DOWNLOADDIR}/linux-rpi/*.pkg.tar.xz ${MOUNTPOINT}/root/
 # === 5. Setup inside Arch chroot ===
 arch-chroot $MOUNTPOINT /bin/bash <<EOF
 set -e
-
-# Force remount root as read-write just in case
-mount -o remount,rw /
 
 ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 hwclock --systohc
@@ -289,15 +287,14 @@ echo "=== Kernel Info ==="
 echo "Version: $(uname -r)"
 echo "Architecture: $(uname -m)"
 echo "Compiled On: $(uname -v)"
+
+mount -o remount,rw /
 sync
 EOF
 
 # === 5.b Firmware Injection and Post-config in chroot ===
 arch-chroot "$MOUNTPOINT" /bin/bash <<'EOF'
 set -e
-
-# Force remount root as read-write just in case
-mount -o remount,rw /
 
 echo "Injecting Broadcom firmware from Debian package..."
 
@@ -355,6 +352,7 @@ fi
 echo "console=serial0,115200 console=tty1 root=LABEL=root rootfstype=ext4 fsck.repair=yes rootwait cfg80211.ieee80211_regdom=US" > /boot/cmdline.txt
 
 echo "cmdline.txt updated successfully."
+mount -o remount,rw /
 EOF
 
 # # === 6. Validate kernels
