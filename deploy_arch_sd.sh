@@ -37,14 +37,22 @@
 # cd pi5_setup
 # Create an .env file for repo setup:
 # Add WIFI_SSID, WIFI_PASS, WIFI_Country, and PI_PASSWORD
-# Run bash deploy_arch_sd.sh script
+# Run sudo bash deploy_arch_sd.sh script
 
-# -- STEP 7: Enable Read - Write to Root File System
+# -- STEP 7: Remove Previous SSH Keys (if needed) | Set locale manually at first boot 
 # User may need to delete ssh/known_hosts if fingerprint error for ssh tunnel
 # Remove previous fingerprint ids /root/.ssh/known_hosts
-# Enable read - write for root file system 'mount -o remount,rw /'
 # Test pacman -Su
-
+# 'sudo nvim /etc/locale.gen'
+# Find this line and uncomment it (remove the #):
+# en_US.UTF-8 UTF-8
+# 2. Generate locales
+# Run: 'sudo locale-gen'
+# 3. Set system-wide locale
+# Create or edit /etc/locale.conf:
+# 'sudo nano /etc/locale.conf'
+# Add: 'LANG=en_US.UTF-8'
+# Locale fixes nerdfont and icon error in tmux
 set -e
 
 # === Load secrets from .env if available ===
@@ -346,7 +354,7 @@ if ! grep -q "^dtparam=wifi=on" /boot/config.txt; then
 fi
 
 # Update cmdline.txt
-echo "console=serial0,115200 console=tty1 root=LABEL=root rootfstype=ext4 fsck.repair=yes rootwait cfg80211.ieee80211_regdom=US" > /boot/cmdline.txt
+echo "console=serial0,115200 console=tty1 root=LABEL=root rootfstype=ext4 fsck.repair=yes rootwait rw cfg80211.ieee80211_regdom=US" > /boot/cmdline.txt
 
 echo "cmdline.txt updated successfully."
 EOF
