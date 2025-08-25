@@ -29,15 +29,15 @@
 # flash)
 
 # -- STEP 6: Run Full Setup Script --
-# Format target Micro SD with Raspberry Pi Imager
-# Insert USB with SD card ready to format
+# Format target M.2 NVME SSD with Raspberry Pi Imager
+# Insert NVME via pcie
 # Check hardware with 'lsblk' to review available
 # Install git and vim
 # git clone https://github.com/chrporter22/pi5_setup.git
 # cd pi5_setup
 # Create an .env file for repo setup:
 # Add WIFI_SSID, WIFI_PASS, WIFI_Country, and PI_PASSWORD
-# Run sudo bash deploy_arch_sd.sh script
+# Run sudo bash deploy_arch_nvme.sh script
 
 # -- STEP 7: Remove Previous SSH Keys (if needed) | Set locale manually at first boot 
 # User may need to delete ssh/known_hosts if fingerprint error for ssh tunnel
@@ -303,7 +303,7 @@ echo "Configuring NVMe PCIe Gen2 and setting NVMe as boot target..."
 # Ensure required PCIe/NVMe dtparams are present (append only once)
 CONFIG_FILE="${MOUNTPOINT}/boot/config.txt"
 grep -q "^dtparam=pciex1" "$CONFIG_FILE" || echo "dtparam=pciex1" >> "$CONFIG_FILE"
-grep -q "^dtparam=pciex1_gen" "$CONFIG_FILE" || echo "dtparam=pciex1_gen=3" >> "$CONFIG_FILE"
+# grep -q "^dtparam=pciex1_gen" "$CONFIG_FILE" || echo "dtparam=pciex1_gen=3" >> "$CONFIG_FILE"
 
 
 # === 5.b Firmware Injection and Post-config in chroot ===
