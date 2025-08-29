@@ -103,20 +103,20 @@ sgdisk -n 2:0:+4G -t 2:8200 -c 2:"swap" $SD_DEV
 sgdisk -n 3:0:0 -t 3:8300 -c 3:"root" $SD_DEV
 
 # Format boot partition
-mkfs.vfat -F32 ${SD_DEV}1
+mkfs.vfat -F32 ${SD_DEV}p1
 
 # Format swap (if not in use)
-if mount | grep -q "${SD_DEV}2"; then
+if mount | grep -q "${SD_DEV}p2"; then
   echo "Unmounting active swap partition before formatting..."
-  sudo swapoff ${SD_DEV}2 || true
-  sudo umount ${SD_DEV}2 || true
+  sudo swapoff ${SD_DEV}p2 || true
+  sudo umount ${SD_DEV}p2 || true
 fi
 
 # Format for swap
-sudo mkswap ${SD_DEV}2
+sudo mkswap ${SD_DEV}p2
 
 # Format root partition as ext4
-mkfs.ext4 -L root ${SD_DEV}3
+mkfs.ext4 -L root ${SD_DEV}p3
 
 # === 3. Mount and Bootstrap Arch ===
 mkdir -p $MOUNTPOINT
