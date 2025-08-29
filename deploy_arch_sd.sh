@@ -53,6 +53,10 @@
 # 'sudo nano /etc/locale.conf'
 # Add: 'LANG=en_US.UTF-8'
 # Locale fixes nerdfont and icon error in tmux
+
+# -- Additonal Setup Links --
+# https://kiljan.org/2023/11/24/arch-linux-arm-on-a-raspberry-pi-5-model-b/
+
 set -e
 
 # === Load secrets from .env if available ===
