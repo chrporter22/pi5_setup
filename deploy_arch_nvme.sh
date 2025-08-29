@@ -53,6 +53,18 @@
 # 'sudo nano /etc/locale.conf'
 # Add: 'LANG=en_US.UTF-8'
 # Locale fixes nerdfont and icon error in tmux
+
+# --- Additional Information ---
+# If you're trying to set EEPROM to boot from NVMe (BOOT_ORDER=0xf416):
+# This must be done from a running Raspberry Pi — not in chroot.
+# Boot into Raspberry Pi (from SD card), then run:
+# 'sudo pacman -S rpi-eeprom'
+# 'sudo rpi-eeprom-config --edit'
+#
+# 'BOOT_ORDER=0xf416'
+# 'PCIE_PROBE=1'
+
+
 set -e
 
 # === Load secrets from .env if available ===
@@ -305,6 +317,7 @@ CONFIG_FILE="${MOUNTPOINT}/boot/config.txt"
 grep -q "^dtparam=pciex1" "$CONFIG_FILE" || echo "dtparam=pciex1" >> "$CONFIG_FILE"
 # grep -q "^dtparam=pciex1_gen" "$CONFIG_FILE" || echo "dtparam=pciex1_gen=3" >> "$CONFIG_FILE"
 
+echo "PCIe NVMe and boot order configured."
 
 # === 5.b Firmware Injection and Post-config in chroot ===
 arch-chroot "$MOUNTPOINT" /bin/bash <<'EOF'
@@ -361,14 +374,6 @@ fi
 if ! grep -q "^dtparam=wifi=on" /boot/config.txt; then
   echo "dtparam=wifi=on" >> /boot/config.txt
 fi
-
-# Configure EEPROM to boot NVMe first
-rpi-eeprom-config --edit <<EOE
-BOOT_ORDER=0xf416
-PCIE_PROBE=1
-EOE
-
-echo "PCIe NVMe and boot order configured."
 
 # Update cmdline.txt
 echo "console=serial0,115200 console=tty1 root=LABEL=root rootfstype=ext4 fsck.repair=yes rootwait rw cfg80211.ieee80211_regdom=US" > /boot/cmdline.txt
