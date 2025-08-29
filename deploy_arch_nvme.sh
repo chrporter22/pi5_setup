@@ -64,7 +64,6 @@
 # 'BOOT_ORDER=0xf416'
 # 'PCIE_PROBE=1'
 
-
 set -e
 
 # === Load secrets from .env if available ===
@@ -253,17 +252,17 @@ SERVICE
 systemctl enable wireless-regdom.service
 
 # Enable fstab & swap | Get the UUID of the boot partition
-BOOT_UUID=$(blkid -s UUID -o value /dev/mmcblk0p1)
+BOOT_UUID=$(blkid -s UUID -o value /dev/nvme0n1p1)
 BOOT_LINE="UUID=${BOOT_UUID} /boot vfat defaults 0 1"
 grep -q "$BOOT_UUID" /etc/fstab || echo "$BOOT_LINE" >> /etc/fstab
 
 # Get the UUID of the swap partition
-SWAP_UUID=$(blkid -s UUID -o value /dev/mmcblk0p2)
+SWAP_UUID=$(blkid -s UUID -o value /dev/nvme0n1p2)
 SWAP_LINE="UUID=${SWAP_UUID} none swap sw 0 0"
 grep -q "$SWAP_UUID" /etc/fstab || echo "$SWAP_LINE" >> /etc/fstab
 
 # Get the UUID of the root partition
-ROOT_UUID=$(blkid -s UUID -o value /dev/mmcblk0p3)
+ROOT_UUID=$(blkid -s UUID -o value /dev/nvme0n1p3)
 ROOT_LINE="UUID=${ROOT_UUID} /ext4 defaults 0 2"
 grep -q "$ROOT_UUID" /etc/fstab || echo "$ROOT_LINE" >> /etc/fstab
 
