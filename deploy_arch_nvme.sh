@@ -136,7 +136,7 @@ rm -rf ${MOUNTPOINT}/boot/*
 
 mkdir -p ${DOWNLOADDIR}/linux-rpi
 pushd ${DOWNLOADDIR}/linux-rpi
-curl -JLO http://mirror.archlinuxarm.org/aarch64/core/linux-rpi-6.12.42-1-aarch64.pkg.tar.xz
+curl -JLO http://mirror.archlinuxarm.org/aarch64/core/linux-rpi-6.12.43-1-aarch64.pkg.tar.xz
 tar xf *
 cp -rf boot/* ${MOUNTPOINT}/boot/
 popd
