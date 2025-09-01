@@ -56,6 +56,7 @@
 
 # -- Additonal Setup Links --
 # https://kiljan.org/2023/11/24/arch-linux-arm-on-a-raspberry-pi-5-model-b/
+# https://archlinuxarm.org/packages/aarch64/linux-rpi
 
 set -e
 
