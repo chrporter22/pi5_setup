@@ -42,7 +42,9 @@
 # -- STEP 7: Remove Previous SSH Keys (if needed) | Set locale manually at first boot 
 # User may need to delete ssh/known_hosts if fingerprint error for ssh tunnel
 # Remove previous fingerprint ids /root/.ssh/known_hosts
+# Once inside pi5 test pacman:
 # Test pacman -Su
+# Add locale info:
 # 'sudo nvim /etc/locale.gen'
 # Find this line and uncomment it (remove the #):
 # en_US.UTF-8 UTF-8
@@ -52,19 +54,23 @@
 # Create or edit /etc/locale.conf:
 # 'sudo nano /etc/locale.conf'
 # Add: 'LANG=en_US.UTF-8'
-# Locale fixes nerdfont and icon error in tmux
+# Locale fixes nerdfont and nvim snacks dashboard preview in tmux
 
 # --- Additional Information ---
 # If you're trying to set EEPROM to boot from NVMe (BOOT_ORDER=0xf416):
 # This must be done from a running Raspberry Pi — not in chroot.
-# Boot into Raspberry Pi (from SD card), then run:
-# 'sudo pacman -S rpi-eeprom'
+# Boot into Raspberry Pi (from SD card running PI OS Lite 64 bit), then run:
 # 'sudo rpi-eeprom-config --edit'
 #
 # 'BOOT_ORDER=0xf416'
 # 'PCIE_PROBE=1'
 
+# -- Additonal Setup Links --
+# https://kiljan.org/2023/11/24/arch-linux-arm-on-a-raspberry-pi-5-model-b/
+# https://archlinuxarm.org/packages/aarch64/linux-rpi
+
 set -e
+
 
 # === Load secrets from .env if available ===
 if [[ -f ".env" ]]; then
