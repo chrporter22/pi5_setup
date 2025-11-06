@@ -126,7 +126,3 @@ After flashing completes:
     ```bash
     BOOT_ORDER=0xf416
     PCIE_PROBE=1
-
-[Guide](https://kiljan.org/2023/11/24/arch-linux-arm-on-a-raspberry-pi-5-model-b/)
-
-
