@@ -29,6 +29,8 @@
 **Reference:**
 - [kernel info](https://archlinuxarm.org/packages/aarch64/linux-rpi)
 - [Guide](https://kiljan.org/2023/11/24/arch-linux-arm-on-a-raspberry-pi-5-model-b/)
+---
+
 ### First Boot Setup Instructions (NVMe SSD)
 Follow these steps to prepare, install, and boot Arch Linux ARM with a custom `linux-rpi` kernel on your Raspberry Pi 5.
 
