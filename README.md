@@ -1,5 +1,4 @@
 # pi5_setup
-
 [![Platform](https://img.shields.io/badge/platform-Raspberry%20Pi%205-red?logo=raspberrypi)]()
 [![Arch](https://img.shields.io/badge/OS-Arch%20Linux-blue?logo=archlinux)]()
 [![Arch Type](https://img.shields.io/badge/arch-aarch64%20(ARM64)-green?logo=linux)]()
@@ -10,6 +9,13 @@
 
 ---
 
+### Hosting & Use Case Summary | Key Highlights
+- **Edge-Optimized ML Workflow Architecture** – Performs PCA-based drift detection locally, minimizing cloud dependencies.  
+- **Low Power, High Flexibility** – Runs efficiently on Raspberry Pi 5 hardware.  
+- **Full DevOps Integration** – Combines Python ML logic, Node.js backend, and React frontend under a single Dockerized architecture.  
+- **Portable & Reproducible | Infrastructure as Code** – Fully automated setup via `deploy_arch_nvme.sh` or `deploy_arch_sd.sh` scripts.  
+- **Scalable Prototype** – Ideal for IoT and WiFi Mesh data drift monitoring, federated learning nodes, or lightweight data science research clusters.
+
 ### Overview
 - Setup scripts to install **Arch Linux ARM** and **custom Linux RPI headers/kernel** from a **headless Raspberry Pi 5** running **Pi OS Lite** booting from SD card 128GB. 
 - Install Arch and Linux RPI on an **SD card** with `deploy_arch_sd.sh`  
@@ -17,19 +23,15 @@
 - Scripts link to a **dotfiles repo** for a uniform **Data Science DevOps** environment  
 - After install, **set locale manually** to mitigate chroot locale setup issues  
   - Locale instructions are included in the comment blocks at the top of each install script  
-
 **Tags:**  
 `linux-rpi` • `aarch64` • `ARM64` • `pi5` • `nvme boot` • `custom kernel and headers` • `headless setup`
-
 **Reference:**
 - [kernel info](https://archlinuxarm.org/packages/aarch64/linux-rpi)
-
-## First Boot Setup Instructions (NVMe SSD)
-
+- [Guide](https://kiljan.org/2023/11/24/arch-linux-arm-on-a-raspberry-pi-5-model-b/)
+### First Boot Setup Instructions (NVMe SSD)
 Follow these steps to prepare, install, and boot Arch Linux ARM with a custom `linux-rpi` kernel on your Raspberry Pi 5.
 
 ---
-
 ### STEP 1 – Flash SD Card with Raspberry Pi Imager
 1. Format SD cards over 32 GB to **FAT32**.
 2. Use the latest **64-bit Raspberry Pi OS Lite** (`.img.xz`) image.
@@ -122,7 +124,6 @@ After flashing completes:
     BOOT_ORDER=0xf416
     PCIE_PROBE=1
 
-### Additional Resources:
 [Guide](https://kiljan.org/2023/11/24/arch-linux-arm-on-a-raspberry-pi-5-model-b/)
 
 
