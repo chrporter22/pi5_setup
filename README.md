@@ -104,23 +104,23 @@ After flashing completes:
 - Edit locales:
     ```bash
     sudo nvim /etc/locale.gen
-    + Uncomment:
-        ```bash
-        en_US.UTF-8 UTF-8
-    + Generate and apply locale:
-        ```bash
-        sudo locale-gen
-        echo 'LANG=en_US.UTF-8' | sudo tee /etc/locale.conf
+- Uncomment:
+    ```bash
+    en_US.UTF-8 UTF-8
+- Generate and apply locale:
+    ```bash
+    sudo locale-gen
+    echo 'LANG=en_US.UTF-8' | sudo tee /etc/locale.conf
 **Setting locale fixes Nerd Fonts and Neovim dashboard previews inside tmux.**
 ### STEP 8 – Enable NVMe Boot (EEPROM)
 - If you want your Pi 5 to boot directly from NVMe (BOOT_ORDER=0xf416):
 - Boot into Raspberry Pi OS Lite (64-bit) from the SD card.
     ```bash
     sudo rpi-eeprom-config --edit
-    + Modify:
-        ```bash
-        BOOT_ORDER=0xf416
-        PCIE_PROBE=1
+- Modify:
+    ```bash
+    BOOT_ORDER=0xf416
+    PCIE_PROBE=1
 
 ### Additional Resources:
 [Guide](https://kiljan.org/2023/11/24/arch-linux-arm-on-a-raspberry-pi-5-model-b/)
