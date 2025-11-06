@@ -25,6 +25,7 @@
   - Locale instructions are included in the comment blocks at the top of each install script  
 **Tags:**  
 `linux-rpi` • `aarch64` • `ARM64` • `pi5` • `nvme boot` • `custom kernel and headers` • `headless setup`
+
 **Reference:**
 - [kernel info](https://archlinuxarm.org/packages/aarch64/linux-rpi)
 - [Guide](https://kiljan.org/2023/11/24/arch-linux-arm-on-a-raspberry-pi-5-model-b/)
