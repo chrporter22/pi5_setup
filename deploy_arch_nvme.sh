@@ -115,7 +115,7 @@ echo "Partitioning NVME for Arch Linux..."
 sgdisk -Z $SD_DEV
 
 # Create partitions
-sgdisk -n 1:0:+256M -t 1:0700 -c 1:"boot" $SD_DEV
+sgdisk -n 1:0:+1G -t 1:0700 -c 1:"boot" $SD_DEV
 sgdisk -n 2:0:+4G -t 2:8200 -c 2:"swap" $SD_DEV
 sgdisk -n 3:0:0 -t 3:8300 -c 3:"root" $SD_DEV
 
@@ -153,7 +153,7 @@ rm -rf ${MOUNTPOINT}/boot/*
 
 mkdir -p ${DOWNLOADDIR}/linux-rpi
 pushd ${DOWNLOADDIR}/linux-rpi
-curl -JLO http://mirror.archlinuxarm.org/aarch64/core/linux-rpi-6.12.43-1-aarch64.pkg.tar.xz
+curl -JLO http://mirror.archlinuxarm.org/aarch64/core/linux-rpi-6.12.57-1-aarch64.pkg.tar.xz
 tar xf *
 cp -rf boot/* ${MOUNTPOINT}/boot/
 popd
