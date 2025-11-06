@@ -10,7 +10,7 @@
 ---
 
 ### Hosting & Use Case Summary | Key Highlights
-- **Edge-Optimized ML Workflow Architecture** – Performs PCA-based drift detection locally, minimizing cloud dependencies.  
+- **Edge-Optimized ML Workflow Architecture** – Performs PCA-based drift detection or risk assessment models locally, minimizing cloud dependencies.  
 - **Low Power, High Flexibility** – Runs efficiently on Raspberry Pi 5 hardware.  
 - **Full DevOps Integration** – Combines Python ML logic, Node.js backend, and React frontend under a single Dockerized architecture.  
 - **Portable & Reproducible | Infrastructure as Code** – Fully automated setup via `deploy_arch_nvme.sh` or `deploy_arch_sd.sh` scripts.  
@@ -23,6 +23,7 @@
 - Scripts link to a **dotfiles repo** for a uniform **Data Science DevOps** environment  
 - After install, **set locale manually** to mitigate chroot locale setup issues  
   - Locale instructions are included in the comment blocks at the top of each install script  
+
 **Tags:**  
 `linux-rpi` • `aarch64` • `ARM64` • `pi5` • `nvme boot` • `custom kernel and headers` • `headless setup`
 
