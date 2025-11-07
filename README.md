@@ -12,9 +12,9 @@
 ### Hosting & Use Case Summary | Key Highlights
 - **Edge-Optimized ML Workflow Architecture** – Run PCA-based drift detection or risk assessment models locally, minimizing cloud dependencies.  
 - **Low Power, High Flexibility** – Runs efficiently on Raspberry Pi 5 hardware.  
-- **Full DevOps Integration** – Combines Python ML logic, Node.js backend, and React frontend under a single Dockerized architecture.  
+- **Full DevOps Integration** – Execute Python ML pipelines, key-value-storage, Node.js and React framework, and NGINX reverse proxies under a single Dockerized architecture.  
 - **Portable & Reproducible | Infrastructure as Code** – Fully automated setup via `deploy_arch_nvme.sh` or `deploy_arch_sd.sh` scripts.  
-- **Scalable Prototype** – Ideal for IoT and WiFi Mesh data drift monitoring, federated learning nodes, or lightweight data science research clusters.
+- **Scalable Prototype** – Ideal for IoT and WiFi Mesh data drift monitoring, federated learning nodes, or lightweight data science research clusters and distributed inference.
 
 ### Overview
 - Setup scripts to install **Arch Linux ARM** and **custom Linux RPI headers/kernel** from a **headless Raspberry Pi 5** running **Pi OS Lite** booting from SD card 128GB. 
