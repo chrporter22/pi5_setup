@@ -167,21 +167,6 @@ set -e
 ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
 hwclock --systohc
 
-# Enable en_US.UTF-8 locale
-# sed -i '/^#en_US.UTF-8 UTF-8/s/^#//' /etc/locale.gen
-# locale-gen
-#
-# echo "LANG=en_US.UTF-8" > /etc/locale.conf
-# export LANG=en_US.UTF-8
-# export LC_ALL=en_US.UTF-8
-
-# echo "Server = https://nj.us.mirror.archlinuxarm.org/\$arch/\$repo" >> /etc/pacman.d/mirrorlist
-# sed -i '/^
-#
-# \[options\]
-#
-# /a DisableSandbox\nDisableDownloadTimeout' /etc/pacman.conf
-# echo "Added 'DisableSandbox' and 'DisableDownloadTimeout' to [options] in pacman.conf"
 
 echo "$HOSTNAME" > /etc/hostname
 
@@ -257,21 +242,6 @@ SERVICE
 
 systemctl enable wireless-regdom.service
 
-# # Enable fstab & swap | Get the UUID of the boot partition
-# BOOT_UUID=$(blkid -s UUID -o value /dev/nvme0n1p1)
-# BOOT_LINE="UUID=${BOOT_UUID} /boot vfat defaults 0 1"
-# grep -q "$BOOT_UUID" /etc/fstab || echo "$BOOT_LINE" >> /etc/fstab
-#
-# # Get the UUID of the swap partition
-# SWAP_UUID=$(blkid -s UUID -o value /dev/nvme0n1p2)
-# SWAP_LINE="UUID=${SWAP_UUID} none swap sw 0 0"
-# grep -q "$SWAP_UUID" /etc/fstab || echo "$SWAP_LINE" >> /etc/fstab
-#
-# # Get the UUID of the root partition
-# ROOT_UUID=$(blkid -s UUID -o value /dev/nvme0n1p3)
-# ROOT_LINE="UUID=${ROOT_UUID} /ext4 defaults 0 2"
-# grep -q "$ROOT_UUID" /etc/fstab || echo "$ROOT_LINE" >> /etc/fstab
-
 # Wi-Fi config (NetworkManager)
 cat > /etc/NetworkManager/system-connections/wifi.nmconnection <<WIFI
 [connection]
@@ -327,53 +297,6 @@ echo "PCIe NVMe and boot order configured."
 # === 5.b Firmware Injection and Post-config in chroot ===
 arch-chroot "$MOUNTPOINT" /bin/bash <<'EOF'
 set -e
-#
-# echo "Injecting Broadcom firmware from Debian package..."
-#
-# # Download the firmware package
-# wget -O /tmp/raspi-firmware.deb \
-#   http://archive.raspberrypi.org/debian/pool/main/r/raspi-firmware/raspi-firmware_1.20250430-4_all.deb
-#
-# cd /tmp
-# ls -l /tmp/raspi-firmware.deb
-#
-# ar x /tmp/raspi-firmware.deb
-# tar -xzf data.tar.gz
-#
-# mkdir -p /boot
-#
-# # === Define helper function ===
-# copy_file_if_not_exists() {
-#   local src="$1"
-#   local dest="$2"
-#   if [[ ! -f "$dest" ]]; then
-#     echo "Copying $src to $dest"
-#     cp "$src" "$dest"
-#   else
-#     echo "Skipping $src, already exists."
-#   fi
-# }
-#
-# # === Copy bootloader and device tree files ===
-# copy_file_if_not_exists /tmp/boot/start.elf /boot/start.elf
-# copy_file_if_not_exists /tmp/boot/bootcode.bin /boot/bootcode.bin
-# copy_file_if_not_exists /tmp/boot/bcm2711-rpi-4-b.dtb /boot/bcm2711-rpi-4-b.dtb
-#
-# # === Copy Broadcom Wi-Fi firmware ===
-# copy_file_if_not_exists /tmp/lib/firmware/brcm/brcmfmac43455-sdio.bin /lib/firmware/brcm/brcmfmac43455-sdio.bin
-#
-# # Clean up extracted files only
-# rm -rf /tmp/control.tar.gz /tmp/data.tar.gz /tmp/debian-binary /tmp/raspi-firmware.deb /tmp/lib /tmp/boot
-#
-# echo "Firmware and bootloader injection complete."
-#
-# # Ensure brcmfmac module loads
-# echo "brcmfmac" > /etc/modules-load.d/brcmfmac.conf
-#
-# # Check if the Broadcom firmware is present
-# if [[ ! -f /lib/firmware/brcm/brcmfmac43455-sdio.bin ]]; then
-#   echo "WARNING: Broadcom firmware not found. Wi-Fi may not work!"
-# fi
 
 # Ensure Wi-Fi is enabled in config.txt
 if ! grep -q "^dtparam=wifi=on" /boot/config.txt; then
@@ -419,16 +342,3 @@ fi
 # === 7. Final Cleanup ===
 # umount -R $MOUNTPOINT
 echo "Arch Linux installed to NVME! Reboot your Pi to enter your new dev/data sci setup!"
-
-
-# === 7.1 Reboot function ===
-# prompt_reboot() {
-#     echo -e "\nInstallation successful. Reboot now? (Y/n)"
-#     read -r reboot
-#     if [[ $reboot == "Y" || $reboot == "y" ]]; then
-#         reboot
-#     fi
-# }
-
-# Call function
-# prompt_reboot
